@@ -1,24 +1,30 @@
-function ProgressCard({ label, value, percent }) {
-  return (
-    <div className="rounded-xl border border-slate-700/50 bg-gradient-to-br from-slate-900 to-slate-950 p-4 shadow-md">
+import Card from './Card';
 
-      <div className="flex justify-between text-sm font-semibold text-slate-300">
-        <span>{label}</span>
-        <span>{value}</span>
+function ProgressCard({ label, value, percent, helper }) {
+  return (
+    <Card className="p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">{label}</p>
+          <p className="mt-2 text-2xl font-semibold tracking-tight text-neutral-950 dark:text-neutral-50">
+            {value}
+          </p>
+        </div>
+        <span className="rounded-full bg-neutral-100 px-2 py-1 text-xs font-medium text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
+          {percent}%
+        </span>
       </div>
 
-      <div className="mt-3 h-2 w-full rounded-full bg-slate-700/60 overflow-hidden">
+      <div className="mt-4 h-2 overflow-hidden rounded-full bg-neutral-100 dark:bg-neutral-800">
         <div
-          className="h-full rounded-full bg-gradient-to-r from-cyan-400 to-cyan-600 transition-all duration-300"
-          style={{ width: `${percent || 5}%` }}
+          className="h-full rounded-full bg-neutral-950 transition-all duration-300 dark:bg-white"
+          style={{ width: `${Math.max(percent || 0, 2)}%` }}
         />
       </div>
 
-      <div className="mt-2 text-right text-xs font-bold text-slate-300">
-        {percent}%
-      </div>
-    </div>
+      {helper && <p className="mt-3 text-xs text-neutral-500 dark:text-neutral-400">{helper}</p>}
+    </Card>
   );
 }
 
-export default ProgressCard
+export default ProgressCard;

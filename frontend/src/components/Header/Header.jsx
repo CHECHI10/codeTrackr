@@ -1,40 +1,93 @@
 import useApp from '../../customHook/useApp.js';
-import { SunIcon, MoonIcon, HamburgerIcon, CloseIcon } from '../Utils/Icons.jsx';
+import Button from '../Utils/Button.jsx';
+import {
+  HamburgerIcon,
+  LogOutIcon,
+  MoonIcon,
+  SearchIcon,
+  SunIcon
+} from '../Utils/Icons.jsx';
 
 function Header() {
+  const {
+    isDark,
+    toggleTheme,
+    sidebarOpen,
+    setSidebarOpen,
+    user,
+    searchTerm,
+    setSearchTerm,
+    handleLogout
+  } = useApp();
 
-  const { isDark, setIsDark, sidebarOpen, setSidebarOpen, secondaryBg, borderClass, hoverBg } = useApp();
-
-  /* const secondaryBg = isDark ? 'bg-slate-800' : 'bg-white'
-  const borderClass = isDark ? 'border-slate-700' : 'border-gray-200'
-  const hoverBg = isDark ? 'hover:bg-slate-700' : 'hover:bg-gray-100' */
+  const initial = user?.username?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U';
 
   return (
-    <header className={`${secondaryBg} border-b ${borderClass} sticky top-0 z-40 transition-colors duration-300`}>
-      <div className="flex items-center justify-between px-4 py-4">
-        <div className="flex items-center gap-4">
-          <button
+    <header className="sticky top-0 z-40 border-b border-neutral-200 bg-white/90 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/90">
+      <div className="flex h-16 items-center justify-between gap-4 px-4 lg:px-6">
+        <div className="flex min-w-0 items-center gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className={`p-2 rounded-lg ${hoverBg} transition-colors`}
-            aria-label={sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
+            aria-label={sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
           >
-            {sidebarOpen ? <CloseIcon /> : <HamburgerIcon />}
-          </button>
-          <h1 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-cyan-600 bg-clip-text text-transparent">DSA TRACKER</h1>
+            <HamburgerIcon />
+          </Button>
+          <div className="flex items-center gap-2 lg:hidden">
+            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-neutral-950 text-xs font-bold text-white dark:bg-white dark:text-neutral-950">
+              CT
+            </div>
+            <span className="font-semibold tracking-tight">CodeTrackr</span>
+          </div>
         </div>
-        <div className="flex items-center gap-4">
-          <button
-            onClick={() => setIsDark(!isDark)}
-            className={`p-2 rounded-lg ${hoverBg} transition-colors`}
-          >
+
+        <div className="relative hidden w-full max-w-xl md:block">
+          <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+          <input
+            type="search"
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            placeholder="Search problems, topics, notes..."
+            className="h-10 w-full rounded-md border border-neutral-200 bg-neutral-50 pl-9 pr-3 text-sm text-neutral-950 outline-none transition focus:border-neutral-400 focus:bg-white focus:ring-2 focus:ring-neutral-200 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-50 dark:focus:border-neutral-600 dark:focus:bg-neutral-950 dark:focus:ring-neutral-800"
+          />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme">
             {isDark ? <SunIcon /> : <MoonIcon />}
-          </button>
-          <button className='hover:bg-slate-700 px-6 py-2.5 text-base font-semibold rounded-lg cursor-not-allowed' title='Not Yet Implemented'>Login</button>
-          <button className='bg-gray-600 hover:bg-gray-500 px-6 py-2.5 text-base font-semibold rounded-lg cursor-not-allowed' title='Not Yet Implemented'>Sign Up</button>
+          </Button>
+
+          <div className="hidden items-center gap-3 rounded-md border border-neutral-200 px-2 py-1.5 dark:border-neutral-800 sm:flex">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-neutral-950 text-xs font-semibold text-white dark:bg-white dark:text-neutral-950">
+              {initial}
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium leading-4">{user?.username}</p>
+              <p className="truncate text-xs text-neutral-500 dark:text-neutral-400">{user?.email}</p>
+            </div>
+          </div>
+
+          <Button variant="ghost" size="icon" onClick={handleLogout} aria-label="Logout">
+            <LogOutIcon />
+          </Button>
+        </div>
+      </div>
+
+      <div className="border-t border-neutral-200 px-4 py-3 dark:border-neutral-800 md:hidden">
+        <div className="relative">
+          <SearchIcon className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
+          <input
+            type="search"
+            value={searchTerm}
+            onChange={(event) => setSearchTerm(event.target.value)}
+            placeholder="Search problems..."
+            className="h-10 w-full rounded-md border border-neutral-200 bg-neutral-50 pl-9 pr-3 text-sm outline-none focus:border-neutral-400 focus:ring-2 focus:ring-neutral-200 dark:border-neutral-800 dark:bg-neutral-900 dark:focus:border-neutral-600 dark:focus:ring-neutral-800"
+          />
         </div>
       </div>
     </header>
-  )
+  );
 }
 
-export default Header
+export default Header;

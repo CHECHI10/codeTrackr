@@ -1,117 +1,455 @@
-import { useState, useEffect } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import AppContext from './AppContext';
 import MODALS from '../constants/modals';
-// import axios from 'axios';
-import { getProblems, addProblem, deleteProblem, updateProblem, deleteProblems } from '../api/problems';
+import useLocalStorage from '../customHook/useLocalStorage';
+import { getCurrentUser, loginUser, logoutUser, registerUser } from '../api/auth';
+import { getDashboardStats } from '../api/dashboard';
+import {
+  getProblems,
+  addProblem,
+  deleteProblem,
+  updateProblem,
+  deleteProblems,
+  addRevision
+} from '../api/problems';
 
-// const InitialProblems = [  
-//   { id: 1, title: 'Two Sum', platform: 'LeetCode', status: 'solved', difficulty: 'easy', lastUpdate: '', link: 'hsh' },
-//   { id: 2, title: 'Binary Tree Level Order Traversal', platform: 'LeetCode', status: 'attempted', difficulty: 'medium', lastUpdate: Date.now() - 30 * 24 * 60 * 60 * 1000, link: 'hsh' },
-//   { id: 3, title: 'Longest Increasing Subsequence', platform: 'CodeForces', status: 'unsolved', difficulty: 'hard', lastUpdate: Date.now() - 30 * 24 * 60 * 60 * 1000, link: 'hsh' },
-//   { id: 4, title: 'Valid Parentheses 4', platform: 'LeetCode', status: 'solved', difficulty: 'easy', lastUpdate: Date.now() - 30 * 24 * 60 * 60 * 1000, link: 'hsh' },
-//   { id: 5, title: 'Valid Parentheses 5', platform: 'LeetCode', status: 'solved', difficulty: 'easy', lastUpdate: Date.now() - 30 * 24 * 60 * 60 * 1000, link: 'hsh' },
-//   { id: 6, title: 'Valid Parentheses 6', platform: 'LeetCode', status: 'solved', difficulty: 'easy', lastUpdate: Date.now() - 30 * 24 * 60 * 60 * 1000, link: 'hsh' },
-//   { id: 7, title: 'Valid Parentheses 7', platform: 'LeetCode', status: 'solved', difficulty: 'easy', lastUpdate: Date.now() - 30 * 24 * 60 * 60 * 1000, link: 'hsh' },
-//   { id: 8, title: 'Valid Parentheses 8', platform: 'LeetCode', status: 'solved', difficulty: 'easy', lastUpdate: Date.now() - 30 * 24 * 60 * 60 * 1000, link: 'hsh' },
-//   { id: 9, title: 'Valid Parentheses 9', platform: 'LeetCode', status: 'solved', difficulty: 'easy', lastUpdate: Date.now() - 30 * 24 * 60 * 60 * 1000, link: 'hsh' },
-//   { id: 10, title: 'Valid Parentheses 10', platform: 'LeetCode', status: 'solved', difficulty: 'easy', lastUpdate: Date.now() - 30 * 24 * 60 * 60 * 1000, link: 'hsh' },
-//   { id: 11, title: 'Valid Parentheses 11', platform: 'LeetCode', status: 'solved', difficulty: 'easy', lastUpdate: Date.now() - 30 * 24 * 60 * 60 * 1000, link: 'hsh' },
-//   { id: 12, title: 'Valid Parentheses 12', platform: 'LeetCode', status:'solved' , difficulty:'easy' , lastUpdate : Date.now() - (3*24*6*6*1e3) , link : "hsh"},
+const defaultProblemForm = {
+  title: '',
+  platform: 'LeetCode',
+  status: 'unsolved',
+  difficulty: 'medium',
+  topic: '',
+  notes: '',
+  timeComplexity: '',
+  spaceComplexity: '',
+  link: ''
+};
 
-// ];
+const defaultStats = {
+  total: 0,
+  solved: 0,
+  attempted: 0,
+  unsolved: 0,
+  revisionCount: 0,
+  currentStreak: 0,
+  longestStreak: 0,
+  difficulty: {
+    easy: { total: 0, solved: 0 },
+    medium: { total: 0, solved: 0 },
+    hard: { total: 0, solved: 0 }
+  },
+  platformDistribution: [],
+  recentActivity: []
+};
 
-// provider component
+const getInitialTheme = () => {
+  if (typeof window === 'undefined') return false;
+  return window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
+};
+
+const getProblemId = (problem) => problem?._id || problem?.id;
+
+const getErrorMessage = (error, fallback = 'Something went wrong') => {
+  return error?.response?.data?.message || error?.response?.data?.error || error?.message || fallback;
+};
+
 const AppContextProvider = ({ children }) => {
-
-  // state management
-  const [isDark, setIsDark] = useState(true)
-  const [sidebarOpen, setSidebarOpen] = useState(true)
-  // const [problems, setProblems] = useState(InitialProblems)
-  const [problems, setProblems] = useState([])
-  const [formData, setFormData] = useState({ title: '', platform: 'LeetCode', status: 'unsolved', difficulty: 'medium', link: '', /* lastUpdateTime: new Date() */ lastUpdate: new Date() })
-
-  // modal states
+  const [isDark, setIsDark] = useLocalStorage('codetrackr-theme-dark', getInitialTheme());
+  const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeModal, setActiveModal] = useState(MODALS.NONE);
-  const [randomProblem, setRandomProblem] = useState(null) // for random practice modal
-  const [problemToDelete, setProblemToDelete] = useState(null); // single delete state
-  const [updateStatusProblem, setUpdateStatusProblem] = useState(null); // New state for status dropdown
-  const [problemToEdit, setProblemToEdit] = useState(null); // edit problem state
 
-  // theme switchers
-  const bgClass = isDark ? 'bg-slate-900' : 'bg-gray-50'
-  const textClass = isDark ? 'text-white' : 'text-gray-900'
-  const secondaryBg = isDark ? 'bg-slate-800' : 'bg-white'
-  const borderClass = isDark ? 'border-slate-700' : 'border-gray-200'
-  const hoverBg = isDark ? 'hover:bg-slate-700' : 'hover:bg-gray-100'
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [authSubmitting, setAuthSubmitting] = useState(false);
+  const [authError, setAuthError] = useState('');
 
-  // Sort state
-  const [sortBy, setSortBy] = useState('lastUpdate'); // Default sort
-  const [sortOrder, setSortOrder] = useState('desc'); // 'asc' or 'desc'      
+  const [problems, setProblems] = useState([]);
+  const [dashboardStats, setDashboardStats] = useState(defaultStats);
+  const [problemsLoading, setProblemsLoading] = useState(false);
+  const [dashboardLoading, setDashboardLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [actionLoading, setActionLoading] = useState(false);
 
-  const getProblemId = (problem) => problem?._id || problem?.id;
+  const [formData, setFormData] = useState(defaultProblemForm);
+  const [randomProblem, setRandomProblem] = useState(null);
+  const [problemToDelete, setProblemToDelete] = useState(null);
+  const [updateStatusProblem, setUpdateStatusProblem] = useState(null);
+  const [problemToEdit, setProblemToEdit] = useState(null);
 
-  // Sort problems function
-  const getSortedProblems = () => {
-    const sorted = [...problems].sort((a, b) => {
-      switch (sortBy) {
-        case 'status': {
-          const statusOrder = { 'solved': 1, 'attempted': 2, 'unsolved': 3 };
-          return sortOrder === 'asc'
-            ? statusOrder[a.status] - statusOrder[b.status]
-            : statusOrder[b.status] - statusOrder[a.status];
-        }
-
-        case 'difficulty': {
-          const diffOrder = { 'easy': 1, 'medium': 2, 'hard': 3 };
-          return sortOrder === 'asc'
-            ? diffOrder[a.difficulty] - diffOrder[b.difficulty]
-            : diffOrder[b.difficulty] - diffOrder[a.difficulty];
-        }
-
-        case 'lastUpdate':
-          return sortOrder === 'asc'
-            ? new Date(a.lastUpdate) - new Date(b.lastUpdate)
-            : new Date(b.lastUpdate) - new Date(a.lastUpdate);
-
-        case 'title':
-          return sortOrder === 'asc'
-            ? a.title.localeCompare(b.title)
-            : b.title.localeCompare(a.title);
-
-        case 'platform':
-          return sortOrder === 'asc'
-            ? a.platform.localeCompare(b.platform)
-            : b.platform.localeCompare(a.platform);
-
-        default:
-          return 0;
-      }
-    });
-    return sorted;
-  };
-
-  useEffect(() => {
-    getProblems()
-      .then(res => setProblems(res.data))
-      .catch(err => console.error("Failed to fetch problems", err));
-  }, []);
-
-
-  // pagination states
-
+  const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [filters, setFilters] = useState({
+    status: '',
+    difficulty: '',
+    platform: '',
+    topic: ''
+  });
+  const [sortBy, setSortBy] = useState('updatedAt');
+  const [sortOrder, setSortOrder] = useState('desc');
   const [currentPage, setCurrentPage] = useState(1);
   const [probPerPage, setProbPerPage] = useState(10);
+  const [pagination, setPagination] = useState({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 1
+  });
+  const [toasts, setToasts] = useState([]);
 
-  const lastProbIndex = currentPage * probPerPage;
-  const firstprobIndex = lastProbIndex - probPerPage;
+  const addToast = useCallback((message, type = 'info') => {
+    const id = `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+    setToasts((prev) => [...prev, { id, message, type }]);
+    window.setTimeout(() => {
+      setToasts((prev) => prev.filter((toast) => toast.id !== id));
+    }, 3500);
+  }, []);
 
-  const sortedProblems = getSortedProblems();
-  // directly use sortedproblems instead of problems.
-  const currentProblems = sortedProblems.slice(firstprobIndex, lastProbIndex);
+  const removeToast = useCallback((id) => {
+    setToasts((prev) => prev.filter((toast) => toast.id !== id));
+  }, []);
 
-  // function to handle last update time 
-  const formatTimeAgo = (date) => {
-    if (!date) return '--';
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', isDark);
+  }, [isDark]);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDebouncedSearch(searchTerm.trim());
+      setCurrentPage(1);
+    }, 300);
+
+    return () => window.clearTimeout(timer);
+  }, [searchTerm]);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setSidebarOpen(window.innerWidth >= 1024);
+    };
+
+    window.addEventListener('resize', handleResize);
+    handleResize();
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const resetProblemState = useCallback(() => {
+    setProblems([]);
+    setDashboardStats(defaultStats);
+    setPagination({ page: 1, limit: probPerPage, total: 0, totalPages: 1 });
+    setSearchTerm('');
+    setDebouncedSearch('');
+    setFilters({ status: '', difficulty: '', platform: '', topic: '' });
+    setSortBy('updatedAt');
+    setSortOrder('desc');
+    setCurrentPage(1);
+  }, [probPerPage]);
+
+  const loadCurrentUser = useCallback(async () => {
+    setAuthLoading(true);
+    try {
+      const res = await getCurrentUser();
+      setUser(res.data.user);
+    } catch {
+      setUser(null);
+    } finally {
+      setAuthLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadCurrentUser();
+  }, [loadCurrentUser]);
+
+  const buildQueryParams = useCallback((overrides = {}) => {
+    return {
+      page: overrides.page ?? currentPage,
+      limit: overrides.limit ?? probPerPage,
+      search: overrides.search ?? debouncedSearch,
+      status: filters.status,
+      difficulty: filters.difficulty,
+      platform: filters.platform,
+      topic: filters.topic,
+      sortBy,
+      sortOrder
+    };
+  }, [currentPage, debouncedSearch, filters, probPerPage, sortBy, sortOrder]);
+
+  const fetchProblems = useCallback(async (overrides = {}) => {
+    if (!user) return;
+
+    setProblemsLoading(true);
+    setError('');
+
+    try {
+      const res = await getProblems(buildQueryParams(overrides));
+      setProblems(res.data.data || []);
+      setPagination(res.data.pagination || {
+        page: overrides.page ?? currentPage,
+        limit: probPerPage,
+        total: 0,
+        totalPages: 1
+      });
+    } catch (err) {
+      setError(getErrorMessage(err, 'Failed to load problems'));
+    } finally {
+      setProblemsLoading(false);
+    }
+  }, [buildQueryParams, currentPage, probPerPage, user]);
+
+  const fetchDashboardStats = useCallback(async () => {
+    if (!user) return;
+
+    setDashboardLoading(true);
+
+    try {
+      const res = await getDashboardStats();
+      setDashboardStats(res.data.data || defaultStats);
+    } catch (err) {
+      setError(getErrorMessage(err, 'Failed to load dashboard statistics'));
+    } finally {
+      setDashboardLoading(false);
+    }
+  }, [user]);
+
+  const refreshData = useCallback(async (overrides = {}) => {
+    await Promise.all([
+      fetchProblems(overrides),
+      fetchDashboardStats()
+    ]);
+  }, [fetchDashboardStats, fetchProblems]);
+
+  useEffect(() => {
+    if (user) {
+      fetchProblems();
+    }
+  }, [fetchProblems, user]);
+
+  useEffect(() => {
+    if (user) {
+      fetchDashboardStats();
+    }
+  }, [fetchDashboardStats, user]);
+
+  const handleLogin = useCallback(async (credentials) => {
+    setAuthSubmitting(true);
+    setAuthError('');
+
+    try {
+      const res = await loginUser(credentials);
+      setUser(res.data.user);
+      addToast('Welcome back.', 'success');
+      return true;
+    } catch (err) {
+      const message = getErrorMessage(err, 'Login failed');
+      setAuthError(message);
+      addToast(message, 'error');
+      return false;
+    } finally {
+      setAuthSubmitting(false);
+    }
+  }, [addToast]);
+
+  const handleRegister = useCallback(async (payload) => {
+    setAuthSubmitting(true);
+    setAuthError('');
+
+    try {
+      const res = await registerUser(payload);
+      setUser(res.data.user);
+      addToast('Account created.', 'success');
+      return true;
+    } catch (err) {
+      const message = getErrorMessage(err, 'Registration failed');
+      setAuthError(message);
+      addToast(message, 'error');
+      return false;
+    } finally {
+      setAuthSubmitting(false);
+    }
+  }, [addToast]);
+
+  const handleLogout = useCallback(async () => {
+    try {
+      await logoutUser();
+    } catch (err) {
+      addToast(getErrorMessage(err, 'Logout failed'), 'error');
+    } finally {
+      setUser(null);
+      resetProblemState();
+      addToast('Signed out.', 'success');
+    }
+  }, [addToast, resetProblemState]);
+
+  const resetForm = useCallback(() => {
+    setFormData(defaultProblemForm);
+    setProblemToEdit(null);
+  }, []);
+
+  const handleAddProblem = useCallback(async () => {
+    if (!formData.title.trim()) {
+      addToast('Problem title is required.', 'error');
+      return;
+    }
+
+    setActionLoading(true);
+    try {
+      await addProblem(formData);
+      setActiveModal(MODALS.NONE);
+      resetForm();
+      setCurrentPage(1);
+      await refreshData({ page: 1 });
+      addToast('Problem added.', 'success');
+    } catch (err) {
+      addToast(getErrorMessage(err, 'Failed to add problem'), 'error');
+    } finally {
+      setActionLoading(false);
+    }
+  }, [addToast, formData, refreshData, resetForm]);
+
+  const handleOpenEdit = useCallback((problem) => {
+    setProblemToEdit(problem);
+    setFormData({
+      ...defaultProblemForm,
+      title: problem.title || '',
+      platform: problem.platform || 'LeetCode',
+      status: problem.status || 'unsolved',
+      difficulty: problem.difficulty || 'medium',
+      topic: problem.topic || '',
+      notes: problem.notes || '',
+      timeComplexity: problem.timeComplexity || '',
+      spaceComplexity: problem.spaceComplexity || '',
+      link: problem.link || ''
+    });
+    setActiveModal(MODALS.EDIT_PROBLEM);
+  }, []);
+
+  const handleConfirmEdit = useCallback(async () => {
+    if (!problemToEdit || !formData.title.trim()) {
+      addToast('Problem title is required.', 'error');
+      return;
+    }
+
+    setActionLoading(true);
+    try {
+      await updateProblem(getProblemId(problemToEdit), formData);
+      setActiveModal(MODALS.NONE);
+      resetForm();
+      await refreshData();
+      addToast('Problem updated.', 'success');
+    } catch (err) {
+      addToast(getErrorMessage(err, 'Failed to update problem'), 'error');
+    } finally {
+      setActionLoading(false);
+    }
+  }, [addToast, formData, problemToEdit, refreshData, resetForm]);
+
+  const handleUpdateStatus = useCallback(async (newStatus) => {
+    if (!updateStatusProblem) return;
+
+    setActionLoading(true);
+    try {
+      await updateProblem(getProblemId(updateStatusProblem), { status: newStatus });
+      setActiveModal(MODALS.NONE);
+      setUpdateStatusProblem(null);
+      await refreshData();
+      addToast('Status updated.', 'success');
+    } catch (err) {
+      addToast(getErrorMessage(err, 'Failed to update status'), 'error');
+    } finally {
+      setActionLoading(false);
+    }
+  }, [addToast, refreshData, updateStatusProblem]);
+
+  const handleAddRevision = useCallback(async (problem) => {
+    setActionLoading(true);
+    try {
+      await addRevision(getProblemId(problem));
+      await refreshData();
+      addToast('Revision recorded.', 'success');
+    } catch (err) {
+      addToast(getErrorMessage(err, 'Failed to record revision'), 'error');
+    } finally {
+      setActionLoading(false);
+    }
+  }, [addToast, refreshData]);
+
+  const handleDeleteProblem = useCallback((problem) => {
+    setProblemToDelete(problem);
+    setActiveModal(MODALS.DELETE_SINGLE);
+  }, []);
+
+  const handleConfirmDelete = useCallback(async () => {
+    if (!problemToDelete) return;
+
+    setActionLoading(true);
+    try {
+      await deleteProblem(getProblemId(problemToDelete));
+      setActiveModal(MODALS.NONE);
+      setProblemToDelete(null);
+      const nextPage = problems.length === 1 && currentPage > 1 ? currentPage - 1 : currentPage;
+      setCurrentPage(nextPage);
+      await refreshData({ page: nextPage });
+      addToast('Problem deleted.', 'success');
+    } catch (err) {
+      addToast(getErrorMessage(err, 'Failed to delete problem'), 'error');
+    } finally {
+      setActionLoading(false);
+    }
+  }, [addToast, currentPage, problemToDelete, problems.length, refreshData]);
+
+  const deleteAllProblems = useCallback(() => {
+    setActiveModal(MODALS.DELETE_ALL);
+  }, []);
+
+  const handleConfirmDeleteAll = useCallback(async () => {
+    setActionLoading(true);
+    try {
+      await deleteProblems();
+      setCurrentPage(1);
+      await refreshData({ page: 1 });
+      setActiveModal(MODALS.NONE);
+      addToast('All problems deleted.', 'success');
+    } catch (err) {
+      addToast(getErrorMessage(err, 'Failed to delete problems'), 'error');
+    } finally {
+      setActionLoading(false);
+    }
+  }, [addToast, refreshData]);
+
+  const handlePracticeRandom = useCallback(() => {
+    if (problems.length === 0) {
+      setActiveModal(MODALS.NO_PROBLEMS_ERROR);
+      return;
+    }
+
+    const random = problems[Math.floor(Math.random() * problems.length)];
+    setRandomProblem(random);
+    setActiveModal(MODALS.RANDOM_PROBLEM);
+  }, [problems]);
+
+  const updateFilter = useCallback((key, value) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
+    setCurrentPage(1);
+  }, []);
+
+  const clearFilters = useCallback(() => {
+    setSearchTerm('');
+    setDebouncedSearch('');
+    setFilters({ status: '', difficulty: '', platform: '', topic: '' });
+    setCurrentPage(1);
+  }, []);
+
+  const toggleSortOrder = useCallback(() => {
+    setSortOrder((prev) => (prev === 'asc' ? 'desc' : 'asc'));
+    setCurrentPage(1);
+  }, []);
+
+  const updateSortBy = useCallback((value) => {
+    setSortBy(value);
+    setCurrentPage(1);
+  }, []);
+
+  const formatTimeAgo = useCallback((date) => {
+    if (!date) return 'Never';
 
     const now = Date.now();
     const diff = Math.floor((now - new Date(date)) / 1000);
@@ -119,259 +457,170 @@ const AppContextProvider = ({ children }) => {
     if (diff < 60) return 'Just now';
 
     const minutes = Math.floor(diff / 60);
-    if (minutes < 60)
-      return `${minutes} minute${minutes === 1 ? '' : 's'} ago`;
+    if (minutes < 60) return `${minutes} min${minutes === 1 ? '' : 's'} ago`;
 
     const hours = Math.floor(minutes / 60);
-    if (hours < 24)
-      return `${hours} hour${hours === 1 ? '' : 's'} ago`;
+    if (hours < 24) return `${hours} hour${hours === 1 ? '' : 's'} ago`;
 
     const days = Math.floor(hours / 24);
-    if (days < 7)
-      return `${days} day${days === 1 ? '' : 's'} ago`;
+    if (days < 7) return `${days} day${days === 1 ? '' : 's'} ago`;
 
-    const weeks = Math.floor(days / 7);
-    if (weeks < 4)
-      return `${weeks} week${weeks === 1 ? '' : 's'} ago`;
+    return new Intl.DateTimeFormat(undefined, {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric'
+    }).format(new Date(date));
+  }, []);
 
-    const months = Math.floor(days / 30);
-    return `${months} month${months === 1 ? '' : 's'} ago`;
-  };
+  const calculateStats = useCallback(() => dashboardStats, [dashboardStats]);
 
-  const calculateStats = (problems) => {
-    const stats = {
-      total: problems.length,
-      solved: 0,
-      attempted: 0,
-      unsolved: 0,
-      difficulty: {
-        easy: { total: 0, solved: 0 },
-        medium: { total: 0, solved: 0 },
-        hard: { total: 0, solved: 0 }
-      }
-    };
+  const themeClasses = useMemo(() => ({
+    bgClass: 'bg-gray-50 dark:bg-neutral-950',
+    textClass: 'text-neutral-950 dark:text-neutral-50',
+    secondaryBg: 'bg-white dark:bg-neutral-900',
+    borderClass: 'border-neutral-200 dark:border-neutral-800',
+    hoverBg: 'hover:bg-neutral-100 dark:hover:bg-neutral-800'
+  }), []);
 
-    for (const p of problems) {
-      // status counts
-      if (p.status === "solved") stats.solved++;
-      else if (p.status === "attempted") stats.attempted++;
-      else stats.unsolved++;
+  const value = useMemo(() => ({
+    MODALS,
+    activeModal,
+    setActiveModal,
 
-      // difficulty counts
-      stats.difficulty[p.difficulty].total++;
-      if (p.status === "solved") {
-        stats.difficulty[p.difficulty].solved++;
-      }
-    }
+    isDark,
+    setIsDark,
+    toggleTheme: () => setIsDark((prev) => !prev),
+    ...themeClasses,
 
-    return stats;
-  }
+    sidebarOpen,
+    setSidebarOpen,
 
-  // to handle practice random problem
-  const handlePracticeRandom = () => {
-    if (problems.length === 0) {
-      setActiveModal(MODALS.NO_PROBLEMS_ERROR);
-      return;
-    }
+    user,
+    authLoading,
+    authSubmitting,
+    authError,
+    setAuthError,
+    handleLogin,
+    handleRegister,
+    handleLogout,
 
-    // to pick a random problem
-    const random = problems[Math.floor(Math.random() * problems.length)]
-    setRandomProblem(random);
-    setActiveModal(MODALS.RANDOM_PROBLEM);
-  }
+    problems,
+    setProblems,
+    loading: problemsLoading,
+    problemsLoading,
+    dashboardLoading,
+    actionLoading,
+    error,
+    dashboardStats,
+    pagination,
+    refreshData,
 
-  // to add new problem
-  const handleAddProblem = async () => {
-    if (!formData.title.trim()) return;
-    try {
-      const res = await addProblem(formData);
-      const newProblem = res.data;
-      setProblems(prev => [newProblem, ...prev]);
+    searchTerm,
+    setSearchTerm,
+    filters,
+    updateFilter,
+    clearFilters,
+    sortBy,
+    setSortBy: updateSortBy,
+    sortOrder,
+    setSortOrder,
+    toggleSortOrder,
 
-      setActiveModal(MODALS.NONE)
-      setFormData({ title: '', platform: 'LeetCode', status: 'unsolved', difficulty: 'medium', link: '' })
-    } catch (err) {
-      console.error("Failed to add problem", err);
-    }
-  }
+    currentProblems: problems,
+    currentPage,
+    setCurrentPage,
+    probPerPage,
+    setProbPerPage,
 
-  // to update problem status
-  const handleUpdateStatus = async (newStatus) => {
-    /* if (updateStatusProblem) {
-      setProblems(problems.map(p =>
-        p.id === updateStatusProblem.id ? { ...p, status: newStatus } : p
-      ))
-    } */
+    randomProblem,
+    setRandomProblem,
+    problemToDelete,
+    setProblemToDelete,
+    problemToEdit,
+    setProblemToEdit,
+    updateStatusProblem,
+    setUpdateStatusProblem,
 
-    if (!updateStatusProblem) return;
+    formData,
+    setFormData,
+    resetForm,
 
-    try {
-      const problemId = getProblemId(updateStatusProblem);
-      const res = await updateProblem(problemId, { status: newStatus });
+    handleAddProblem,
+    handlePracticeRandom,
+    handleOpenEdit,
+    handleConfirmEdit,
+    handleUpdateStatus,
+    handleAddRevision,
+    formatTimeAgo,
+    handleConfirmDelete,
+    handleDeleteProblem,
+    deleteAllProblems,
+    handleConfirmDeleteAll,
+    calculateStats,
+    getProblemId,
 
-      const updatedProblem = res.data;
-      const updatedProblemId = getProblemId(updatedProblem);
-
-      setProblems(prev =>
-        prev.map(p =>
-          getProblemId(p) === updatedProblemId ? updatedProblem : p
-        ))
-
-      setActiveModal(MODALS.NONE);
-
-    } catch (err) {
-      console.error("Failed to update problem status", err);
-    }
-  };
-
-  // to open modal for edit problem
-  const handleOpenEdit = (problem) => {
-    setProblemToEdit(problem);
-    setFormData({
-      title: problem.title,
-      platform: problem.platform,
-      status: problem.status,
-      difficulty: problem.difficulty,
-      link: problem.link
-    });
-    setActiveModal(MODALS.EDIT_PROBLEM);
-  }
-
-  // to confirm edit problem
-  const handleConfirmEdit = async () => {
-    /* if (problemToEdit && formData.title.trim()) {
-      setProblems(problems.map(p => p.id === problemToEdit.id ? {
-        ...p,
-        title: formData.title,
-        platform: formData.platform,
-        difficulty: formData.difficulty,
-        status: formData.status,
-        link: formData.link,
-        // lastUpdateTime: formData.status !== p.status ? new Date() : p.lastUpdate // only change lastUpdateTime if PROBLEM STATUS is changed
-        lastUpdate: formData.status !== p.status ? new Date() : p.lastUpdate // only change lastUpdateTime if PROBLEM STATUS is changed
-      }
-        : p
-      ));
-    } */
-
-    if (!problemToEdit || !formData.title.trim()) return;
-
-    try {
-      const problemId = getProblemId(problemToEdit);
-      const res = await updateProblem(problemId, formData)
-
-      setProblems(prev => prev.map(p => getProblemId(p) === problemId ? res.data : p));
-
-      setFormData({ title: '', platform: 'LeetCode', status: 'unsolved', difficulty: 'medium', link: '' });
-      setActiveModal(MODALS.NONE);
-    } catch (err) {
-        console.error("Failed to update problem", err);
-      return;
-    }
-  };
-
-  // to open modal for delete single problem
-  const handleDeleteProblem = (problem) => {
-    setProblemToDelete(problem);
-    setActiveModal(MODALS.DELETE_SINGLE);
-  };
-
-  // to confirm delete for single problem
-  const handleConfirmDelete = async () => {
-    /* if (problemToDelete) {
-      setProblems(problems.filter(p => p.id !== problemToDelete.id));
-      setActiveModal(MODALS.NONE);
-    } */
-
-    if (!problemToDelete) return;
-
-    try {
-      const problemId = getProblemId(problemToDelete);
-      await deleteProblem(problemId);
-
-      setProblems(prev => prev.filter(p => getProblemId(p) !== problemId));
-
-      setActiveModal(MODALS.NONE);
-    } catch (err) {
-      console.error("Failed to delete problem", err);
-    }
-
-  };
-
-   // to open modal for delete all problems
-  const deleteAllProblems = () => {
-    // Open a confirmation modal instead of deleting immediately
-    setActiveModal(MODALS.DELETE_ALL);
-  }
-
-  // to confirm delete for All problem
-  const handleConfirmDeleteAll = async() => {
-    try {
-      await deleteProblems();
-      setProblems([]);
-      setActiveModal(MODALS.NONE);
-    } catch (err) {
-      console.error("Failed to delete all problems", err);
-    }
-  }
-
-  // responsive sidebar handling
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth >= 1024) setSidebarOpen(true)
-      else setSidebarOpen(false)
-    }
-
-    window.addEventListener('resize', handleResize)
-    handleResize()
-    return () => window.removeEventListener('resize', handleResize)
-  }, [])
-
-  const value = {
-    // theme
-    isDark, setIsDark, secondaryBg,
-
-    // sorting
-    sortBy, setSortBy, sortOrder, setSortOrder, getSortedProblems, sortedProblems,
-
-    // sidebar
-    sidebarOpen, setSidebarOpen,
-
-    // problems
-    problems, setProblems, randomProblem, setRandomProblem, bgClass, textClass, borderClass, hoverBg,
-
-    // pagination
-    currentProblems, currentPage, setCurrentPage, setProbPerPage, probPerPage,
-
-    // delete
-    problemToDelete, setProblemToDelete,
-
-    // edit
-    problemToEdit, setProblemToEdit,
-
-    // update status
-    updateStatusProblem, setUpdateStatusProblem,
-
-    // form
-    formData, setFormData,
-
-    // MODALS
-    MODALS, activeModal, setActiveModal,
-
-    // functions
-    handleAddProblem, handlePracticeRandom,
-    handleOpenEdit, handleConfirmEdit,
-    handleUpdateStatus, formatTimeAgo,
-    handleConfirmDelete, handleDeleteProblem, deleteAllProblems, handleConfirmDeleteAll,
-    calculateStats
-  };
+    toasts,
+    addToast,
+    removeToast
+  }), [
+    activeModal,
+    actionLoading,
+    addToast,
+    authError,
+    authLoading,
+    authSubmitting,
+    calculateStats,
+    clearFilters,
+    currentPage,
+    dashboardLoading,
+    dashboardStats,
+    deleteAllProblems,
+    error,
+    filters,
+    formData,
+    formatTimeAgo,
+    handleAddProblem,
+    handleAddRevision,
+    handleConfirmDelete,
+    handleConfirmDeleteAll,
+    handleConfirmEdit,
+    handleDeleteProblem,
+    handleLogin,
+    handleLogout,
+    handleOpenEdit,
+    handlePracticeRandom,
+    handleRegister,
+    handleUpdateStatus,
+    isDark,
+    pagination,
+    probPerPage,
+    problemToDelete,
+    problemToEdit,
+    problems,
+    problemsLoading,
+    randomProblem,
+    refreshData,
+    removeToast,
+    resetForm,
+    searchTerm,
+    setIsDark,
+    sidebarOpen,
+    sortBy,
+    sortOrder,
+    toggleSortOrder,
+    themeClasses,
+    toasts,
+    updateFilter,
+    updateSortBy,
+    updateStatusProblem,
+    user
+  ]);
 
   return (
     <AppContext.Provider value={value}>
       {children}
     </AppContext.Provider>
   );
-
-}
+};
 
 export default AppContextProvider;

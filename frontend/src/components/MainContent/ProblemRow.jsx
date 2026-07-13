@@ -1,74 +1,104 @@
-import useApp from "../../customHook/useApp";
-import { StatusIcon, TrashIcon } from "../Utils/Icons";
-import { DifficultyBadge } from "../Utils/DifficultyBadge";
+import useApp from '../../customHook/useApp';
+import Badge from '../Utils/Badge';
+import Button from '../Utils/Button';
+import { DifficultyBadge } from '../Utils/DifficultyBadge';
+import {
+  EditIcon,
+  ExternalLinkIcon,
+  RefreshIcon,
+  StatusIcon,
+  TrashIcon
+} from '../Utils/Icons';
 
-function ProblemRow({ problem, idx}) {
-
-  const { isDark, hoverBg, setUpdateStatusProblem, setActiveModal, MODALS, formatTimeAgo, handleOpenEdit, handleDeleteProblem} = useApp();
+function ProblemRow({ problem }) {
+  const {
+    setUpdateStatusProblem,
+    setActiveModal,
+    MODALS,
+    formatTimeAgo,
+    handleOpenEdit,
+    handleDeleteProblem,
+    handleAddRevision,
+    actionLoading
+  } = useApp();
 
   return (
-    <tr key={problem._id} className={`${idx % 2 === 0 ? (isDark ? 'bg-slate-800 bg-opacity-20' : 'bg-white bg-opacity-20') : ''} transition-colors hover:cursor-pointer`}>
-      <td className={`relative px-6 py-4 text-center ${hoverBg}`}
-        onClick={() => {
-          setUpdateStatusProblem(problem);
-          setActiveModal(MODALS.UPDATE_STATUS)
-        }}
-        title="Click to update status"
-      >
-        <div className="flex justify-center">
-          {<button
-            /* onClick={() => {
-              setUpdateStatusProblem(problem);
-              setActiveModal(MODALS.UPDATE_STATUS)
-            }} */
-            className="flex justify-center"
-            title="Click to update status"
-          >
-            <StatusIcon status={problem.status} />
-          </button>}
+    <tr className="transition-colors hover:bg-neutral-50 dark:hover:bg-neutral-950">
+      <td className="px-4 py-4">
+        <button
+          type="button"
+          className="inline-flex items-center gap-2 rounded-md px-2 py-1 text-sm transition hover:bg-neutral-100 dark:hover:bg-neutral-800"
+          onClick={() => {
+            setUpdateStatusProblem(problem);
+            setActiveModal(MODALS.UPDATE_STATUS);
+          }}
+        >
+          <StatusIcon status={problem.status} />
+          <Badge variant={problem.status}>{problem.status}</Badge>
+        </button>
+      </td>
+
+      <td className="px-4 py-4">
+        <div className="max-w-xs">
+          <p className="truncate text-sm font-semibold text-neutral-950 dark:text-neutral-50">{problem.title}</p>
+          <p className="truncate text-xs text-neutral-500 dark:text-neutral-400">
+            {problem.timeComplexity || 'Time not set'} / {problem.spaceComplexity || 'Space not set'}
+          </p>
         </div>
-
       </td>
 
-      <td className={`px-6 py-4 font-medium text-lg text-center ${hoverBg}`}>{problem.title}</td>
-      <td className="px-6 py-4 text-center">
-        <DifficultyBadge difficulty={problem.difficulty} isDark={isDark} />
+      <td className="px-4 py-4">
+        <DifficultyBadge difficulty={problem.difficulty} />
       </td>
-      <td className="px-6 py-4 text-base text-center">
-        {problem.platform}
+
+      <td className="px-4 py-4 text-sm text-neutral-700 dark:text-neutral-300">{problem.platform}</td>
+      <td className="px-4 py-4 text-sm text-neutral-700 dark:text-neutral-300">{problem.topic || 'General'}</td>
+      <td className="px-4 py-4 text-sm font-medium text-neutral-900 dark:text-neutral-100">{problem.revisionCount || 0}</td>
+      <td className="px-4 py-4 text-sm text-neutral-500 dark:text-neutral-400">
+        {formatTimeAgo(problem.lastSolved || problem.lastUpdate || problem.updatedAt)}
       </td>
-      <td className={`px-6 py-4 text-sm text-center ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
-        {/* {formatTimeAgo(problem.lastUpdateTime)} */}
-        {formatTimeAgo(problem.lastUpdate)}
-      </td>
-      <td className={`px-6 py-4 text-sm text-center ${isDark ? 'text-gray-400' : 'text-gray-600'} ${hoverBg}`}>
-        {problem.link ? (
-          <a
-            href={problem.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-500 hover:underline"
+
+      <td className="px-4 py-4">
+        <div className="flex justify-end gap-1">
+          {problem.link && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => window.open(problem.link, '_blank', 'noopener,noreferrer')}
+              aria-label={`Open ${problem.title}`}
+            >
+              <ExternalLinkIcon className="h-4 w-4" />
+            </Button>
+          )}
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => handleAddRevision(problem)}
+            disabled={actionLoading}
+            aria-label={`Record revision for ${problem.title}`}
           >
-            {/* Link */}
-            {/* 🔗 */}
-            Solve
-          </a>
-        ) : (
-          <span className="text-gray-400">Not Available</span>
-        )}
-      </td>
-
-      <td className={`p-4 text-center  flex justify-center gap-5 ${hoverBg}`}>
-        <button onClick={() => handleOpenEdit(problem)} className="p-2 text-[var(--danger-primary)] hover:text-[var(--danger-secondary)] rounded-full hover:bg-[var(--bg-interactive)] transition-colors" title="Edit Problem">
-          {/* <EditIcon /> */}
-          ✏️
-        </button>
-        <button onClick={() => handleDeleteProblem(problem)} className="p-2 hover:text-red-500 text-[var(--danger-primary)] hover:text-[var(--danger-secondary)] rounded-full hover:bg-[var(--bg-interactive)] transition-colors" title="Delete Problem">
-          <TrashIcon />
-        </button>
+            <RefreshIcon className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => handleOpenEdit(problem)}
+            aria-label={`Edit ${problem.title}`}
+          >
+            <EditIcon className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => handleDeleteProblem(problem)}
+            aria-label={`Delete ${problem.title}`}
+          >
+            <TrashIcon className="h-4 w-4" />
+          </Button>
+        </div>
       </td>
     </tr>
-  )
+  );
 }
 
-export default ProblemRow
+export default ProblemRow;

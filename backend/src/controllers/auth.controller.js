@@ -1,46 +1,67 @@
-const userModel = require('../models/user.model');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
+const User = require("../models/user.model");
+const ApiError = require("../utils/apiError");
+const asyncHandler = require("../utils/asyncHandler");
+const { setAuthCookie, clearAuthCookie } = require("../utils/cookies");
+const { signToken } = require("../utils/tokens");
 
+const sendAuthResponse = (res, statusCode, user, message) => {
+  const token = signToken(user._id);
+  setAuthCookie(res, token);
 
-async function registerUser(req, res) {
-  try {
-    const { username, email, password, } = req.body;
+  res.status(statusCode).json({
+    success: true,
+    message,
+    user
+  });
+};
 
-    const existingUser = await userModel.findOne({ 
-      $or: [
-        {username},
-        {email}
-      ] 
-    });
-    
-    if (existingUser) {
-      return res.status(400).json({ error: "Username or email already in use" });
-    }
+const registerUser = asyncHandler(async (req, res) => {
+  const { username, email, password } = req.validated.body;
 
-    const hash = await bcrypt.hash(password, 10);
+  const existingUser = await User.findOne({
+    $or: [{ username }, { email }]
+  });
 
-    const user = await userModel.create({ 
-      username, email, password:hash 
-    });
-
-    const token = jwt.sign({
-      id: user._id
-    }, process.env.JWT_SECRET);
-
-    res.cookie('token', token);
-
-    
-    res.status(201).json({ 
-      message: "User registered successfully",
-      user 
-    });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  if (existingUser) {
+    throw new ApiError(409, "Username or email already in use");
   }
-}
 
+  const user = await User.create({ username, email, password });
+
+  sendAuthResponse(res, 201, user, "User registered successfully");
+});
+
+const loginUser = asyncHandler(async (req, res) => {
+  const { email, password } = req.validated.body;
+
+  const user = await User.findOne({ email }).select("+password");
+
+  if (!user || !(await user.comparePassword(password))) {
+    throw new ApiError(401, "Invalid email or password");
+  }
+
+  sendAuthResponse(res, 200, user, "Logged in successfully");
+});
+
+const logoutUser = asyncHandler(async (req, res) => {
+  clearAuthCookie(res);
+
+  res.status(200).json({
+    success: true,
+    message: "Logged out successfully"
+  });
+});
+
+const getCurrentUser = asyncHandler(async (req, res) => {
+  res.status(200).json({
+    success: true,
+    user: req.user
+  });
+});
 
 module.exports = {
-  registerUser
+  registerUser,
+  loginUser,
+  logoutUser,
+  getCurrentUser
 };

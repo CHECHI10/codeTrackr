@@ -1,25 +1,43 @@
-import { CloseIcon } from "./Icons"
+import Button from './Button';
+import { CloseIcon } from './Icons';
 
-export const Modal = ({ isOpen, title, children, isDark, onClose }) => {
-  if (!isOpen) return null
+export const Modal = ({ isOpen, title, description, children, onClose, size = 'md' }) => {
+  if (!isOpen) return null;
+
+  const maxWidth = {
+    sm: 'max-w-sm',
+    md: 'max-w-md',
+    lg: 'max-w-2xl'
+  }[size];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black 
-    bg-opacity-50 p-4 backdrop-blur-sm"
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-4"
       onClick={onClose}
+      role="presentation"
     >
-      <div className={`rounded-lg shadow-xl p-6 w-full max-w-md backdrop-blur-sm border ${isDark ? 'bg-slate-800 bg-opacity-50 border-slate-700' : 'bg-white bg-opacity-50 border-white'}`}
-        onClick={(e) => e.stopPropagation()}
+      <div
+        className={`max-h-[90vh] w-full ${maxWidth} overflow-y-auto rounded-lg border border-neutral-200 bg-white p-6 shadow-xl dark:border-neutral-800 dark:bg-neutral-900`}
+        onClick={(event) => event.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+        aria-label={title}
       >
-        <div className="flex justify-between items-center mb-4">
-          <h2 className={`text-3xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>{title}</h2>
-          <button onClick={onClose} className={`transition-colors ${isDark ? 'text-gray-400 hover:text-white' : 'text-gray-600 hover:text-gray-900'} `}>
+        <div className="mb-5 flex items-start justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-semibold tracking-tight text-neutral-950 dark:text-neutral-50">
+              {title}
+            </h2>
+            {description && (
+              <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">{description}</p>
+            )}
+          </div>
+          <Button variant="ghost" size="icon" onClick={onClose} aria-label="Close modal">
             <CloseIcon />
-          </button>
+          </Button>
         </div>
         {children}
       </div>
     </div>
-  )
-}
-
+  );
+};

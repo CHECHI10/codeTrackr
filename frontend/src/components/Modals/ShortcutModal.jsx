@@ -1,52 +1,36 @@
-import useApp from '../../customHook/useApp'
-import { Modal } from '../Utils/Modal'
+import useApp from '../../customHook/useApp';
+import { Modal } from '../Utils/Modal';
 
 function ShortcutModal() {
+  const { activeModal, setActiveModal, MODALS } = useApp();
+  const shortcuts = [
+    ['Add Problem', 'Alt + N'],
+    ['Random Practice', 'Alt + P'],
+    ['Delete All', 'Alt + D'],
+    ['Toggle Theme', 'Alt + T'],
+    ['Toggle Sidebar', 'Alt + S'],
+    ['Close Modal', 'Esc'],
+    ['Show Shortcuts', 'Ctrl + /']
+  ];
 
-  const { isDark, activeModal, setActiveModal, MODALS} = useApp()
   return (
-    <>
-      {/* Keyboard Shortcuts Help Modal */}
-
-      <Modal
-        isOpen={activeModal === MODALS.HELP}
-        title="⌨️ Keyboard Shortcuts"
-        isDark={isDark}
-        onClose={() => setActiveModal(MODALS.NONE)}
-      >
-        <div className="space-y-3">
-          <div className={`flex justify-between py-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-            <span>Add Problem</span>
-            <kbd className="px-2 py-1 bg-slate-700 rounded text-xs">Alt + N</kbd>
+    <Modal
+      isOpen={activeModal === MODALS.HELP}
+      title="Keyboard Shortcuts"
+      onClose={() => setActiveModal(MODALS.NONE)}
+    >
+      <div className="space-y-2">
+        {shortcuts.map(([label, command]) => (
+          <div key={label} className="flex items-center justify-between rounded-md border border-neutral-200 px-3 py-2 dark:border-neutral-800">
+            <span className="text-sm text-neutral-700 dark:text-neutral-300">{label}</span>
+            <kbd className="rounded bg-neutral-100 px-2 py-1 text-xs font-medium text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
+              {command}
+            </kbd>
           </div>
-          <div className={`flex justify-between py-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-            <span>Random Practice</span>
-            <kbd className="px-2 py-1 bg-slate-700 rounded text-xs">Alt + P</kbd>
-          </div>
-          <div className={`flex justify-between py-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-            <span>Delete All</span>
-            <kbd className="px-2 py-1 bg-slate-700 rounded text-xs">Alt + D</kbd>
-          </div>
-          <div className={`flex justify-between py-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-            <span>Toggle Theme</span>
-            <kbd className="px-2 py-1 bg-slate-700 rounded text-xs">Alt + T</kbd>
-          </div>
-          <div className={`flex justify-between py-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-            <span>Close Modal</span>
-            <kbd className="px-2 py-1 bg-slate-700 rounded text-xs">Esc</kbd>
-          </div>
-          <div className={`flex justify-between py-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-            <span>Close Sidebar</span>
-            <kbd className="px-2 py-1 bg-slate-700 rounded text-xs">Alt + S</kbd>
-          </div>
-          <div className={`flex justify-between py-2 ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
-            <span>Show Shortcuts</span>
-            <kbd className="px-2 py-1 bg-slate-700 rounded text-xs">Ctrl + /</kbd>
-          </div>
-        </div>
-      </Modal>
-    </>
-  )
+        ))}
+      </div>
+    </Modal>
+  );
 }
 
-export default ShortcutModal
+export default ShortcutModal;

@@ -1,68 +1,55 @@
-import useApp from "../../customHook/useApp";
-import { Modal } from "../Utils/Modal";
+import useApp from '../../customHook/useApp';
+import Button from '../Utils/Button';
+import { Modal } from '../Utils/Modal';
 
 function DeleteModal() {
-
-  const { isDark, activeModal, setActiveModal, MODALS, problemToDelete, handleConfirmDelete, handleConfirmDeleteAll } = useApp();
+  const {
+    activeModal,
+    setActiveModal,
+    MODALS,
+    problemToDelete,
+    handleConfirmDelete,
+    handleConfirmDeleteAll,
+    actionLoading
+  } = useApp();
 
   return (
     <>
-      {/* --- Delete Single Problem Confirmation Modal --- */}
       <Modal
         isOpen={activeModal === MODALS.DELETE_SINGLE}
-        title="Confirm Deletion" isDark={isDark}
-        onClose={() =>
-          setActiveModal(MODALS.NONE)
-        }
+        title="Delete Problem"
+        description="This cannot be undone."
+        onClose={() => setActiveModal(MODALS.NONE)}
       >
-        <p className="text-gray-300 my-4 text-m">
-          Are you sure you want to delete the problem "<span className="font-bold text-red-400">{problemToDelete?.title}</span>"? This action cannot be undone.
+        <p className="text-sm text-neutral-600 dark:text-neutral-400">
+          Delete <span className="font-semibold text-neutral-950 dark:text-neutral-50">{problemToDelete?.title}</span>?
         </p>
-        <div className="flex justify-end space-x-4 mt-6">
-          <button
-            onClick={() => setActiveModal(MODALS.NONE)}
-            className="px-6 py-2.5 text-sm font-semibold text-gray-300 hover:text-white rounded-lg"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleConfirmDelete}
-            className="px-6 py-2.5 text-base font-semibold text-white bg-red-500 hover:bg-red-700 rounded-lg transition-opacity"
-          >
-            Delete
-          </button>
+        <div className="mt-6 flex justify-end gap-2">
+          <Button variant="ghost" onClick={() => setActiveModal(MODALS.NONE)}>Cancel</Button>
+          <Button variant="danger" onClick={handleConfirmDelete} disabled={actionLoading}>
+            {actionLoading ? 'Deleting...' : 'Delete'}
+          </Button>
         </div>
       </Modal>
 
-      {/* --- Delete All Problems Confirmation Modal --- */}
       <Modal
         isOpen={activeModal === MODALS.DELETE_ALL}
-        title='Confirm Delete All' isDark={isDark}
-        onClose={() =>
-          setActiveModal(MODALS.NONE)
-        }
+        title="Delete All Problems"
+        description="Only your problems will be deleted."
+        onClose={() => setActiveModal(MODALS.NONE)}
       >
-
-        <p className="text-gray-300 my-4 text-m">
-          Are you sure you want to delete all problems? This action cannot be undone.
+        <p className="text-sm text-neutral-600 dark:text-neutral-400">
+          This removes every problem in your account. The action cannot be undone.
         </p>
-        <div className="flex justify-end space-x-4 mt-6">
-          <button
-            onClick={() => setActiveModal(MODALS.NONE)}
-            className="px-6 py-2.5 text-sm font-semibold text-gray-300 hover:text-white rounded-lg"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleConfirmDeleteAll}
-            className="px-6 py-2.5 text-base font-semibold text-white bg-red-500 hover:bg-red-700 rounded-lg transition-opacity"
-          >
-            Delete All
-          </button>
+        <div className="mt-6 flex justify-end gap-2">
+          <Button variant="ghost" onClick={() => setActiveModal(MODALS.NONE)}>Cancel</Button>
+          <Button variant="danger" onClick={handleConfirmDeleteAll} disabled={actionLoading}>
+            {actionLoading ? 'Deleting...' : 'Delete All'}
+          </Button>
         </div>
       </Modal>
     </>
-  )
+  );
 }
 
-export default DeleteModal
+export default DeleteModal;

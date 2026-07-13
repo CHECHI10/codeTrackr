@@ -1,61 +1,101 @@
-import useApp from "../../customHook/useApp"
-import SortDropdown from "../Utils/SortDropdown";
-import ProgressBar from "./ProgressBar";
+import useApp from '../../customHook/useApp';
+import Button from '../Utils/Button';
+import Input from '../Utils/Input';
+import Select from '../Utils/Select';
+import SortDropdown from '../Utils/SortDropdown';
+import ProgressBar from './ProgressBar';
+import { DiceIcon, FilterIcon, PlusIcon, TrashIcon } from '../Utils/Icons';
 
 function Actionbar() {
-  
-  const { isDark, setActiveModal, MODALS, handlePracticeRandom, deleteAllProblems, problems} = useApp();  
+  const {
+    setActiveModal,
+    MODALS,
+    handlePracticeRandom,
+    deleteAllProblems,
+    pagination,
+    filters,
+    updateFilter,
+    clearFilters,
+    problemsLoading
+  } = useApp();
 
-  const borderClass = isDark ? 'border-slate-700' : 'border-gray-200';
-  
   return (
     <>
-      {/* Action Buttons */}
-      <div className={`sticky top-0 z-20 ${isDark ? 'bg-slate-900' : 'bg-gray-50'} pb-4 pt-2 -mx-6 px-6 border-b ${borderClass} backdrop-blur-sm bg-opacity-95`}>
+      <section className="space-y-6">
+        <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
+          <div>
+            <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Dashboard</p>
+            <h1 className="mt-1 text-3xl font-semibold tracking-tight text-neutral-950 dark:text-white">
+              My DSA Progress
+            </h1>
+          </div>
 
-        <div className="flex flex-wrap justify-between items-center gap-4">
-          <p className={`text-2xl font-bold ${isDark ? 'text-gray-300' : 'text-gray-800'}`}>
-            My DSA Progress
-          </p>
-
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              onClick={() => setActiveModal(MODALS.ADD_PROBLEM)}
-              className="px-6 py-2 bg-gradient-to-r from-cyan-400 to-cyan-600 text-white rounded-lg font-semibold hover:opacity-90 transition-opacity shadow-md"
-            >
+          <div className="flex flex-wrap items-center gap-2">
+            <Button onClick={() => setActiveModal(MODALS.ADD_PROBLEM)}>
+              <PlusIcon className="h-4 w-4" />
               Add Problem
-            </button>
-
-            <button
-              onClick={() => handlePracticeRandom()}
-              className={`px-6 py-2 rounded-lg font-semibold transition-colors shadow-md ${isDark
-                ? 'bg-slate-700 hover:bg-slate-600 text-white'
-                : 'bg-gray-200 hover:bg-gray-300 text-gray-800'
-                }`}
+            </Button>
+            <Button variant="secondary" onClick={handlePracticeRandom}>
+              <DiceIcon className="h-4 w-4" />
+              Practice
+            </Button>
+            <Button
+              variant="danger"
+              onClick={deleteAllProblems}
+              disabled={pagination.total === 0 || problemsLoading}
             >
-              🎲 Practice Random
-            </button>
-
-            <button
-              onClick={() => deleteAllProblems()}
-              disabled={problems.length === 0}
-              className={`px-6 py-2.5 text-base font-semibold text-white rounded-lg transition-opacity shadow-md ${problems.length === 0
-                ? 'bg-red-300 cursor-not-allowed'
-                : 'bg-red-500 hover:bg-red-700'
-                }`}
-            >
+              <TrashIcon className="h-4 w-4" />
               Delete All
-            </button>
-
-            <SortDropdown />
+            </Button>
           </div>
         </div>
-      </div>
 
-      <ProgressBar />
+        <ProgressBar />
 
+        <div className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
+          <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">
+            <FilterIcon className="h-4 w-4" />
+            Filters
+          </div>
+          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-[1fr_1fr_1fr_1fr_auto_auto] xl:items-end">
+            <Select label="Status" value={filters.status} onChange={(event) => updateFilter('status', event.target.value)}>
+              <option value="">All statuses</option>
+              <option value="solved">Solved</option>
+              <option value="attempted">Attempted</option>
+              <option value="unsolved">Unsolved</option>
+            </Select>
+
+            <Select label="Difficulty" value={filters.difficulty} onChange={(event) => updateFilter('difficulty', event.target.value)}>
+              <option value="">All difficulties</option>
+              <option value="easy">Easy</option>
+              <option value="medium">Medium</option>
+              <option value="hard">Hard</option>
+            </Select>
+
+            <Input
+              label="Platform"
+              value={filters.platform}
+              onChange={(event) => updateFilter('platform', event.target.value)}
+              placeholder="LeetCode"
+            />
+
+            <Input
+              label="Topic"
+              value={filters.topic}
+              onChange={(event) => updateFilter('topic', event.target.value)}
+              placeholder="Trees"
+            />
+
+            <SortDropdown />
+
+            <Button variant="outline" onClick={clearFilters}>
+              Reset
+            </Button>
+          </div>
+        </div>
+      </section>
     </>
-  )
+  );
 }
 
-export default Actionbar
+export default Actionbar;

@@ -1,103 +1,201 @@
+const base = 'h-5 w-5';
 
-export const SunIcon = () => (
-  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-    <circle cx="12" cy="12" r="5" />
-    <line x1="12" y1="1" x2="12" y2="3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    <line x1="12" y1="21" x2="12" y2="23" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    <line x1="1" y1="12" x2="3" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    <line x1="21" y1="12" x2="23" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+export const Icon = ({ children, className = base, ...props }) => (
+  <svg
+    className={className}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+    {...props}
+  >
+    {children}
   </svg>
 );
 
-export const MoonIcon = () => (
-  <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-    <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
-  </svg>
-)
-
-export const HamburgerIcon = () => (
-  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-  </svg>
-)
-
-export const CloseIcon = () => (
-  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <line x1="18" y1="6" x2="6" y2="18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    <line x1="6" y1="6" x2="18" y2="18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-  </svg>
+export const SunIcon = ({ className = base }) => (
+  <Icon className={className}>
+    <circle cx="12" cy="12" r="4" />
+    <path d="M12 2v2" />
+    <path d="M12 20v2" />
+    <path d="m4.93 4.93 1.41 1.41" />
+    <path d="m17.66 17.66 1.41 1.41" />
+    <path d="M2 12h2" />
+    <path d="M20 12h2" />
+    <path d="m6.34 17.66-1.41 1.41" />
+    <path d="m19.07 4.93-1.41 1.41" />
+  </Icon>
 );
 
-export const RefreshIcon = () => (
-  <>
-    {/* <img width="24" height="24" src="https://img.icons8.com/sf-black/64/recurring-appointment.png" alt="recurring-appointment"/> */}
-
-    <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24" height="24" viewBox="0 0 24 24">
-      <path d="M20.172,7.288c-0.397-0.566-1.179-0.699-1.742-0.303c-0.564,0.397-0.7,1.177-0.303,1.742	c0.886,1.259,1.354,2.743,1.354,4.29c0,4.116-3.35,7.465-7.466,7.465s-7.465-3.349-7.465-7.465c0-4.015,3.187-7.29,7.162-7.451	l-0.288,0.247C10.9,6.262,10.84,7.051,11.289,7.575c0.247,0.289,0.598,0.437,0.95,0.437c0.287,0,0.577-0.099,0.812-0.301	l2.798-2.397c0.257-0.22,0.413-0.535,0.435-0.873c0.021-0.338-0.097-0.669-0.325-0.919l-2.802-3.066	c-0.468-0.511-1.259-0.545-1.766-0.08c-0.51,0.466-0.546,1.256-0.08,1.766l0.835,0.914c-0.044-0.001-0.088-0.005-0.131-0.005	c-5.495,0-9.965,4.471-9.965,9.966s4.47,9.965,9.965,9.965s9.966-4.47,9.966-9.965C21.981,10.951,21.355,8.971,20.172,7.288z"></path>
-    </svg>
-  </>
+export const MoonIcon = ({ className = base }) => (
+  <Icon className={className}>
+    <path d="M12 3a6 6 0 0 0 9 7.5A9 9 0 1 1 12 3Z" />
+  </Icon>
 );
 
-// icon for LINK, not used currently
-/* export const LinkIcon = () => {
-  <img width="24" height="24" src="https://img.icons8.com/glyph-neue/64/link.png" alt="link"/>
-} */
-
-export const TrashIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <polyline points="3 6 5 6 21 6"></polyline>
-    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-    <line x1="10" y1="11" x2="10" y2="17"></line>
-    <line x1="14" y1="11" x2="14" y2="17"></line>
-  </svg>
+export const HamburgerIcon = ({ className = base }) => (
+  <Icon className={className}>
+    <path d="M4 6h16" />
+    <path d="M4 12h16" />
+    <path d="M4 18h16" />
+  </Icon>
 );
 
-export const EditIcon = () => (
-  <>
-   {/*  <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="18" height="18" viewBox="0 0 50 50">
-      <path d="M31.979 13.686l4.336 4.336-21.29 21.29-4.914 1.644c-.658.22-1.285-.407-1.065-1.065l1.644-4.914L31.979 13.686zM32.686 12.979l3.539-3.539c.586-.586 1.536-.586 2.121 0l2.214 2.214c.586.586.586 1.536 0 2.121l-3.539 3.539L32.686 12.979z"></path>
-    </svg> */}
-    <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" width="24" height="24" viewBox="0 0 72 72">
-<path d="M38.406 22.234l11.36 11.36L28.784 54.576l-12.876 4.307c-1.725.577-3.367-1.065-2.791-2.79l4.307-12.876L38.406 22.234zM41.234 19.406l5.234-5.234c1.562-1.562 4.095-1.562 5.657 0l5.703 5.703c1.562 1.562 1.562 4.095 0 5.657l-5.234 5.234L41.234 19.406z"></path>
-</svg>
-  </>
+export const CloseIcon = ({ className = base }) => (
+  <Icon className={className}>
+    <path d="M18 6 6 18" />
+    <path d="m6 6 12 12" />
+  </Icon>
 );
 
-export const CheckCircleIcon = () => (
-  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-green-500">
-    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-    <polyline points="22 4 12 14.01 9 11.01"></polyline>
-  </svg>
+export const SearchIcon = ({ className = base }) => (
+  <Icon className={className}>
+    <circle cx="11" cy="11" r="8" />
+    <path d="m21 21-4.3-4.3" />
+  </Icon>
 );
 
-export const AttemptedCircleIcon = () => (
-  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-yellow-500">
-    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-    <line x1="12" y1="9" x2="12" y2="13"></line>
-    <line x1="12" y1="17" x2="12.01" y2="17"></line>
-  </svg>
+export const LogOutIcon = ({ className = base }) => (
+  <Icon className={className}>
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+    <path d="m16 17 5-5-5-5" />
+    <path d="M21 12H9" />
+  </Icon>
 );
 
-export const UnsolvedCircleIcon = () => (
-  <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5 text-red-500">
-    <circle cx="12" cy="12" r="10"></circle>
-    <line x1="15" y1="9" x2="9" y2="15"></line>
-    <line x1="9" y1="9" x2="15" y2="15"></line>
-  </svg>
+export const PlusIcon = ({ className = base }) => (
+  <Icon className={className}>
+    <path d="M12 5v14" />
+    <path d="M5 12h14" />
+  </Icon>
+);
+
+export const DiceIcon = ({ className = base }) => (
+  <Icon className={className}>
+    <rect x="4" y="4" width="16" height="16" rx="3" />
+    <circle cx="9" cy="9" r="1" fill="currentColor" stroke="none" />
+    <circle cx="15" cy="15" r="1" fill="currentColor" stroke="none" />
+    <circle cx="15" cy="9" r="1" fill="currentColor" stroke="none" />
+    <circle cx="9" cy="15" r="1" fill="currentColor" stroke="none" />
+  </Icon>
+);
+
+export const TrashIcon = ({ className = base }) => (
+  <Icon className={className}>
+    <path d="M3 6h18" />
+    <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+    <path d="M10 11v6" />
+    <path d="M14 11v6" />
+  </Icon>
+);
+
+export const EditIcon = ({ className = base }) => (
+  <Icon className={className}>
+    <path d="M12 20h9" />
+    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+  </Icon>
+);
+
+export const RefreshIcon = ({ className = base }) => (
+  <Icon className={className}>
+    <path d="M21 12a9 9 0 0 1-15.4 6.4L3 16" />
+    <path d="M3 21v-5h5" />
+    <path d="M3 12a9 9 0 0 1 15.4-6.4L21 8" />
+    <path d="M21 3v5h-5" />
+  </Icon>
+);
+
+export const ExternalLinkIcon = ({ className = base }) => (
+  <Icon className={className}>
+    <path d="M15 3h6v6" />
+    <path d="M10 14 21 3" />
+    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+  </Icon>
+);
+
+export const HomeIcon = ({ className = base }) => (
+  <Icon className={className}>
+    <path d="m3 11 9-8 9 8" />
+    <path d="M5 10v10h14V10" />
+    <path d="M10 20v-6h4v6" />
+  </Icon>
+);
+
+export const PanelIcon = ({ className = base }) => (
+  <Icon className={className}>
+    <rect x="3" y="4" width="18" height="16" rx="2" />
+    <path d="M9 4v16" />
+  </Icon>
+);
+
+export const BarChartIcon = ({ className = base }) => (
+  <Icon className={className}>
+    <path d="M3 3v18h18" />
+    <path d="M8 17V9" />
+    <path d="M13 17V5" />
+    <path d="M18 17v-4" />
+  </Icon>
+);
+
+export const BookIcon = ({ className = base }) => (
+  <Icon className={className}>
+    <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+    <path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5Z" />
+  </Icon>
+);
+
+export const FilterIcon = ({ className = base }) => (
+  <Icon className={className}>
+    <path d="M22 3H2l8 9v7l4 2v-9Z" />
+  </Icon>
+);
+
+export const ArrowUpIcon = ({ className = base }) => (
+  <Icon className={className}>
+    <path d="m18 15-6-6-6 6" />
+  </Icon>
+);
+
+export const ArrowDownIcon = ({ className = base }) => (
+  <Icon className={className}>
+    <path d="m6 9 6 6 6-6" />
+  </Icon>
+);
+
+export const CheckCircleIcon = ({ className = `${base} text-emerald-500` }) => (
+  <Icon className={className}>
+    <path d="M20 6 9 17l-5-5" />
+    <circle cx="12" cy="12" r="10" />
+  </Icon>
+);
+
+export const AttemptedCircleIcon = ({ className = `${base} text-orange-500` }) => (
+  <Icon className={className}>
+    <path d="M12 8v4" />
+    <path d="M12 16h.01" />
+    <circle cx="12" cy="12" r="10" />
+  </Icon>
+);
+
+export const UnsolvedCircleIcon = ({ className = `${base} text-neutral-400` }) => (
+  <Icon className={className}>
+    <circle cx="12" cy="12" r="10" />
+    <path d="M8 12h8" />
+  </Icon>
 );
 
 export const StatusIcon = ({ status }) => {
   switch (status) {
     case 'solved':
-      return <CheckCircleIcon />
+      return <CheckCircleIcon />;
     case 'attempted':
-      return <AttemptedCircleIcon />
+      return <AttemptedCircleIcon />;
     case 'unsolved':
     default:
-      return <UnsolvedCircleIcon />
+      return <UnsolvedCircleIcon />;
   }
-}
+};

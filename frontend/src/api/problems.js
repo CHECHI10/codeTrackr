@@ -1,7 +1,7 @@
 import api from './axios'
 
-export const getProblems = () => {
-  return api.get('/problems');
+export const getProblems = (params = {}) => {
+  return api.get('/problems', { params });
 } 
 
 export const addProblem = (data) => {
@@ -18,4 +18,8 @@ export const deleteProblem = (id) => {
 
 export const deleteProblems = () => {
   return api.delete('/problems');
+}
+
+export const addRevision = (id) => {
+  return api.patch(`/problems/${id}/revision`);
 }
