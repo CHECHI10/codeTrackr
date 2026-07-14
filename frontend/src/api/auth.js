@@ -13,5 +13,8 @@ export const logoutUser = () => {
 }
 
 export const getCurrentUser = () => {
-  return api.get('/auth/me')
+  return api.get('/auth/me', {
+    // 401 means "not authenticated" — not an unexpected failure for bootstrap
+    validateStatus: (status) => status === 200 || status === 401,
+  })
 }

@@ -3,6 +3,7 @@ import AppContext from './AppContext';
 import MODALS from '../constants/modals';
 import useLocalStorage from '../customHook/useLocalStorage';
 import { getCurrentUser, loginUser, logoutUser, registerUser } from '../api/auth';
+import { getErrorMessage } from '../api/axios';
 import { getDashboardStats } from '../api/dashboard';
 import {
   getProblems,
@@ -12,6 +13,9 @@ import {
   deleteProblems,
   addRevision
 } from '../api/problems';
+
+/** Shared across StrictMode double-mount so /auth/me runs once per page load. */
+let authBootstrapPromise = null;
 
 const defaultProblemForm = {
   title: '',
@@ -54,10 +58,6 @@ const ROUTES = ['/dashboard', '/problems', '/analytics'];
 const getInitialRoute = () => {
   if (typeof window === 'undefined') return '/dashboard';
   return ROUTES.includes(window.location.pathname) ? window.location.pathname : '/dashboard';
-};
-
-const getErrorMessage = (error, fallback = 'Something went wrong') => {
-  return error?.response?.data?.message || error?.response?.data?.error || error?.message || fallback;
 };
 
 const AppContextProvider = ({ children }) => {
@@ -180,10 +180,31 @@ const AppContextProvider = ({ children }) => {
   const loadCurrentUser = useCallback(async () => {
     setAuthLoading(true);
     try {
-      const res = await getCurrentUser();
-      setUser(res.data.user);
-    } catch {
-      setUser(null);
+      if (!authBootstrapPromise) {
+        authBootstrapPromise = getCurrentUser()
+          .then((res) => {
+            if (res.status === 401) {
+              return null;
+            }
+            return res.data.user ?? null;
+          })
+          .catch((err) => {
+            // Unexpected failures only (network, 5xx, etc.) — never log expected 401
+            const status = err?.response?.status;
+            if (status !== 401) {
+              console.error(
+                status && status >= 500
+                  ? 'Auth check failed: server error'
+                  : 'Auth check failed: network or unexpected error',
+                err
+              );
+            }
+            return null;
+          });
+      }
+
+      const currentUser = await authBootstrapPromise;
+      setUser(currentUser);
     } finally {
       setAuthLoading(false);
     }
