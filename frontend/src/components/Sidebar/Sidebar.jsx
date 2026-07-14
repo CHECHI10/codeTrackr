@@ -31,7 +31,7 @@ function Sidebar() {
           </div>
           <div>
             <p className="text-sm font-semibold tracking-tight">CodeTrackr</p>
-            <p className="text-xs text-neutral-500 dark:text-neutral-400">DSA dashboard</p>
+            <p className="text-xs text-neutral-500 dark:text-neutral-400">PRACTICE | IMPROVE</p>
           </div>
         </div>
 
