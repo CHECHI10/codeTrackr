@@ -17,6 +17,7 @@ export default function AuthPage() {
   const [mode, setMode] = useState('login');
   const [form, setForm] = useState({
     username: '',
+    identifier: '',
     email: '',
     password: ''
   });
@@ -37,19 +38,35 @@ export default function AuthPage() {
     }
 
     await handleLogin({
-      email: form.email,
+      identifier: form.identifier,
       password: form.password
     });
   };
 
   return (
     <main className="min-h-screen bg-neutral-50 text-neutral-950 transition-colors dark:bg-neutral-950 dark:text-neutral-50">
+      {/* <div className="fixed inset-0 -z-10 overflow-hidden">
+        <img
+          src="/front-logo.png"
+          alt=""
+          aria-hidden="true"
+          className="
+              absolute
+              inset-0
+              m-auto
+              w-[900px]
+              opacity-[0.1]
+              pointer-events-none
+              select-none
+          "
+        />
+      </div> */}
       <div className="mx-auto flex min-h-screen w-full max-w-6xl items-center justify-center px-4 py-10">
         <div className="grid w-full gap-8 lg:grid-cols-[1fr_420px] lg:items-center">
           <section className="hidden lg:block">
             <div className="max-w-xl">
-              <div className="mb-6 inline-flex h-10 w-10 items-center justify-center rounded-lg bg-neutral-950 text-sm font-bold text-white dark:bg-white dark:text-neutral-950">
-                CT
+              <div className="mb-6 h-12 w-12 overflow-hidden rounded-full border border-neutral-200 bg-neutral-950 shadow-sm dark:border-neutral-800">
+                <img src="/codeTrackr_Logo.png" alt="CodeTrackr" className="h-full w-full object-cover" />
               </div>
               <h1 className="text-5xl font-semibold tracking-tight text-neutral-950 dark:text-white">
                 Track DSA progress without losing the thread.
@@ -61,12 +78,17 @@ export default function AuthPage() {
           </section>
 
           <section className="rounded-lg border border-neutral-200 bg-white p-6 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
-            <div className="mb-6 flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">CodeTrackr</p>
-                <h2 className="mt-1 text-2xl font-semibold tracking-tight">
-                  {isRegistering ? 'Create account' : 'Welcome back'}
-                </h2>
+            <div className="mb-6 flex items-center justify-between gap-4">
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full border border-neutral-200 bg-neutral-950 shadow-sm dark:border-neutral-800">
+                  <img src="/codeTrackr_Logo.png" alt="CodeTrackr" className="h-full w-full object-cover" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">CodeTrackr</p>
+                  <h2 className="mt-1 text-2xl font-semibold tracking-tight">
+                    {isRegistering ? 'Create account' : 'Welcome back'}
+                  </h2>
+                </div>
               </div>
               <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme">
                 {isDark ? <SunIcon /> : <MoonIcon />}
@@ -85,12 +107,12 @@ export default function AuthPage() {
                 />
               )}
               <Input
-                label="Email"
-                name="email"
-                type="email"
-                value={form.email}
-                onChange={(event) => updateForm('email', event.target.value)}
-                autoComplete="email"
+                label={isRegistering ? 'Email' : 'Email or username'}
+                name={isRegistering ? 'email' : 'identifier'}
+                type={isRegistering ? 'email' : 'text'}
+                value={isRegistering ? form.email || '' : form.identifier}
+                onChange={(event) => updateForm(isRegistering ? 'email' : 'identifier', event.target.value)}
+                autoComplete={isRegistering ? 'email' : 'username'}
                 required
               />
               <Input

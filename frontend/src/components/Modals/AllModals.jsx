@@ -4,6 +4,8 @@ import ShortcutModal from "./ShortcutModal"
 import DeleteModal from "./DeleteModal"
 import UpdateStatusModal from "./UpdateStatusModal"
 import EditProblemModal from "./EditProblemModal"
+import LogoutConfirmModal from "./LogoutConfirmModal"
+import SettingsModal from "./SettingsModal"
 
 function AllModals() {
   
@@ -20,6 +22,10 @@ function AllModals() {
       <UpdateStatusModal />
 
       <EditProblemModal />
+
+      <SettingsModal />
+
+      <LogoutConfirmModal />
     </>
   )
 }

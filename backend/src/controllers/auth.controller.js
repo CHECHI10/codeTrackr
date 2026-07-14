@@ -32,12 +32,16 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 const loginUser = asyncHandler(async (req, res) => {
-  const { email, password } = req.validated.body;
+  const { identifier, password } = req.validated.body;
+  const isEmailLogin = identifier.includes("@");
+  const query = isEmailLogin
+    ? { email: identifier.toLowerCase() }
+    : { username: identifier };
 
-  const user = await User.findOne({ email }).select("+password");
+  const user = await User.findOne(query).select("+password");
 
   if (!user || !(await user.comparePassword(password))) {
-    throw new ApiError(401, "Invalid email or password");
+    throw new ApiError(401, "Invalid email/username or password");
   }
 
   sendAuthResponse(res, 200, user, "Logged in successfully");

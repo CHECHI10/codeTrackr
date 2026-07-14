@@ -3,7 +3,6 @@ import Button from '../Utils/Button';
 import Input from '../Utils/Input';
 import Select from '../Utils/Select';
 import SortDropdown from '../Utils/SortDropdown';
-import ProgressBar from './ProgressBar';
 import { DiceIcon, FilterIcon, PlusIcon, TrashIcon } from '../Utils/Icons';
 
 function Actionbar() {
@@ -24,9 +23,9 @@ function Actionbar() {
       <section className="space-y-6">
         <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-end">
           <div>
-            <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Dashboard</p>
+            <p className="text-sm font-medium text-neutral-500 dark:text-neutral-400">Problems</p>
             <h1 className="mt-1 text-3xl font-semibold tracking-tight text-neutral-950 dark:text-white">
-              My DSA Progress
+              Problem Library
             </h1>
           </div>
 
@@ -49,8 +48,6 @@ function Actionbar() {
             </Button>
           </div>
         </div>
-
-        <ProgressBar />
 
         <div className="rounded-lg border border-neutral-200 bg-white p-4 shadow-sm dark:border-neutral-800 dark:bg-neutral-900">
           <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100">

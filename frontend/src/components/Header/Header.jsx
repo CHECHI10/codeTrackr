@@ -14,16 +14,20 @@ function Header() {
     toggleTheme,
     sidebarOpen,
     setSidebarOpen,
-    user,
+    currentRoute,
     searchTerm,
     setSearchTerm,
-    handleLogout
+    confirmLogout
   } = useApp();
 
-  const initial = user?.username?.charAt(0)?.toUpperCase() || user?.email?.charAt(0)?.toUpperCase() || 'U';
+  const routeLabel = {
+    '/dashboard': 'Dashboard',
+    '/problems': 'Problems',
+    '/analytics': 'Analytics'
+  }[currentRoute] || 'Dashboard';
 
   return (
-    <header className="sticky top-0 z-40 border-b border-neutral-200 bg-white/90 backdrop-blur dark:border-neutral-800 dark:bg-neutral-950/90">
+    <header className="fixed left-0 right-0 top-0 z-40 border-b border-neutral-200 bg-white/95 backdrop-blur transition-all duration-300 dark:border-neutral-800 dark:bg-neutral-950/95">
       <div className="flex h-16 items-center justify-between gap-4 px-4 lg:px-6">
         <div className="flex min-w-0 items-center gap-3">
           <Button
@@ -34,11 +38,8 @@ function Header() {
           >
             <HamburgerIcon />
           </Button>
-          <div className="flex items-center gap-2 lg:hidden">
-            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-neutral-950 text-xs font-bold text-white dark:bg-white dark:text-neutral-950">
-              CT
-            </div>
-            <span className="font-semibold tracking-tight">CodeTrackr</span>
+          <div className="border-l border-neutral-200 pl-3 text-sm font-medium text-neutral-500 dark:border-neutral-800 dark:text-neutral-400">
+            {routeLabel}
           </div>
         </div>
 
@@ -58,17 +59,7 @@ function Header() {
             {isDark ? <SunIcon /> : <MoonIcon />}
           </Button>
 
-          <div className="hidden items-center gap-3 rounded-md border border-neutral-200 px-2 py-1.5 dark:border-neutral-800 sm:flex">
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-neutral-950 text-xs font-semibold text-white dark:bg-white dark:text-neutral-950">
-              {initial}
-            </div>
-            <div className="min-w-0">
-              <p className="truncate text-sm font-medium leading-4">{user?.username}</p>
-              <p className="truncate text-xs text-neutral-500 dark:text-neutral-400">{user?.email}</p>
-            </div>
-          </div>
-
-          <Button variant="ghost" size="icon" onClick={handleLogout} aria-label="Logout">
+          <Button variant="ghost" size="icon" onClick={confirmLogout} aria-label="Logout">
             <LogOutIcon />
           </Button>
         </div>

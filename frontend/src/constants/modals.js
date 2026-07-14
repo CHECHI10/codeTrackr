@@ -8,6 +8,8 @@ const MODALS = {
   EDIT_PROBLEM: 'editProblem',
   DELETE_SINGLE: 'deleteSingle',
   DELETE_ALL: 'deleteAll',
+  LOGOUT_CONFIRM: 'logoutConfirm',
+  SETTINGS: 'settings',
   HELP: 'help',
 };
 

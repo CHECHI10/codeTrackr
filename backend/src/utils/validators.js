@@ -62,11 +62,15 @@ const validateRegister = (req) => {
 
 const validateLogin = (req) => {
   const errors = [];
-  const email = normalizeText(req.body.email)?.toLowerCase();
+  const identifier = normalizeText(req.body.identifier || req.body.email);
   const password = req.body.password;
 
-  if (!isNonEmptyString(email) || !isValidEmail(email)) {
+  if (!isNonEmptyString(identifier)) {
+    errors.push("Email or username is required");
+  } else if (identifier.includes("@") && !isValidEmail(identifier)) {
     errors.push("A valid email is required");
+  } else if (!identifier.includes("@") && identifier.length < 3) {
+    errors.push("Username must be at least 3 characters long");
   }
 
   if (!isNonEmptyString(password)) {
@@ -76,7 +80,7 @@ const validateLogin = (req) => {
   return {
     errors,
     value: {
-      body: { email, password }
+      body: { identifier, password }
     }
   };
 };

@@ -29,11 +29,11 @@ export default function App() {
   }
 
   return (
-    <div className={`${bgClass} ${textClass} min-h-screen font-sans transition-colors duration-300 overflow-x-hidden`}>
+    <div className={`${bgClass} ${textClass} h-screen overflow-hidden font-sans transition-colors duration-300`}>
       
       <Header />
       
-      <div className="flex">
+      <div>
         <Sidebar />
         <MainContent />
       </div>

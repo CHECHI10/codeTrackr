@@ -49,14 +49,22 @@ const getInitialTheme = () => {
 
 const getProblemId = (problem) => problem?._id || problem?.id;
 
+const ROUTES = ['/dashboard', '/problems', '/analytics'];
+
+const getInitialRoute = () => {
+  if (typeof window === 'undefined') return '/dashboard';
+  return ROUTES.includes(window.location.pathname) ? window.location.pathname : '/dashboard';
+};
+
 const getErrorMessage = (error, fallback = 'Something went wrong') => {
   return error?.response?.data?.message || error?.response?.data?.error || error?.message || fallback;
 };
 
 const AppContextProvider = ({ children }) => {
   const [isDark, setIsDark] = useLocalStorage('codetrackr-theme-dark', getInitialTheme());
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [activeModal, setActiveModal] = useState(MODALS.NONE);
+  const [currentRoute, setCurrentRoute] = useState(getInitialRoute);
 
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
@@ -108,9 +116,45 @@ const AppContextProvider = ({ children }) => {
     setToasts((prev) => prev.filter((toast) => toast.id !== id));
   }, []);
 
+  const navigate = useCallback((route, options = {}) => {
+    const nextRoute = ROUTES.includes(route) ? route : '/dashboard';
+
+    if (typeof window !== 'undefined') {
+      if (options.replace) {
+        window.history.replaceState({}, '', nextRoute);
+      } else if (window.location.pathname !== nextRoute) {
+        window.history.pushState({}, '', nextRoute);
+      }
+    }
+
+    setCurrentRoute(nextRoute);
+  }, []);
+
+  const isActiveRoute = useCallback((route) => currentRoute === route, [currentRoute]);
+
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDark);
   }, [isDark]);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      setCurrentRoute(getInitialRoute());
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  useEffect(() => {
+    if (!user) return;
+
+    if (!ROUTES.includes(window.location.pathname)) {
+      navigate('/dashboard', { replace: true });
+      return;
+    }
+
+    setCurrentRoute(window.location.pathname);
+  }, [navigate, user]);
 
   useEffect(() => {
     const timer = window.setTimeout(() => {
@@ -120,16 +164,6 @@ const AppContextProvider = ({ children }) => {
 
     return () => window.clearTimeout(timer);
   }, [searchTerm]);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setSidebarOpen(window.innerWidth >= 1024);
-    };
-
-    window.addEventListener('resize', handleResize);
-    handleResize();
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
 
   const resetProblemState = useCallback(() => {
     setProblems([]);
@@ -236,7 +270,8 @@ const AppContextProvider = ({ children }) => {
     try {
       const res = await loginUser(credentials);
       setUser(res.data.user);
-      addToast('Welcome back.', 'success');
+      addToast(`Welcome back, ${res.data.user.username}!`, 'success');
+      // addToast(`Welcome back, ${res.data.user?.username || res.data.user}!`, 'success');
       return true;
     } catch (err) {
       const message = getErrorMessage(err, 'Login failed');
@@ -275,9 +310,18 @@ const AppContextProvider = ({ children }) => {
     } finally {
       setUser(null);
       resetProblemState();
+      setActiveModal(MODALS.NONE);
+      if (typeof window !== 'undefined') {
+        window.history.replaceState({}, '', '/');
+      }
+      setCurrentRoute('/dashboard');
       addToast('Signed out.', 'success');
     }
   }, [addToast, resetProblemState]);
+
+  const confirmLogout = useCallback(() => {
+    setActiveModal(MODALS.LOGOUT_CONFIRM);
+  }, []);
 
   const resetForm = useCallback(() => {
     setFormData(defaultProblemForm);
@@ -494,6 +538,10 @@ const AppContextProvider = ({ children }) => {
 
     sidebarOpen,
     setSidebarOpen,
+    currentRoute,
+    navigate,
+    isActiveRoute,
+    routes: ROUTES,
 
     user,
     authLoading,
@@ -503,6 +551,7 @@ const AppContextProvider = ({ children }) => {
     handleLogin,
     handleRegister,
     handleLogout,
+    confirmLogout,
 
     problems,
     setProblems,
@@ -571,6 +620,8 @@ const AppContextProvider = ({ children }) => {
     authSubmitting,
     calculateStats,
     clearFilters,
+    confirmLogout,
+    currentRoute,
     currentPage,
     dashboardLoading,
     dashboardStats,
@@ -592,6 +643,8 @@ const AppContextProvider = ({ children }) => {
     handleRegister,
     handleUpdateStatus,
     isDark,
+    isActiveRoute,
+    navigate,
     pagination,
     probPerPage,
     problemToDelete,
