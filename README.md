@@ -34,7 +34,7 @@ A modern full-stack coding interview tracker built with the MERN stack that help
 
 <p align="center">Watch a 45-second walkthrough of CodeTrackr. </p>
 
-<video src="assets/demo.mp4" controls width="100%"></video>
+https://github.com/user-attachments/assets/3a24ef9d-78df-481f-a8a5-f5eb6c537dda
 
 # About CodeTrackr
 
@@ -260,6 +260,42 @@ Access Granted
 │ createdBy                  │
 └────────────────────────────┘
 ```
+## Screenshots
+
+<table>
+<tr>
+<td align="center">
+<img src="assets/login.png" width="100%"><br>
+<b>Login</b>
+</td>
+<td align="center">
+<img src="assets/dashboard.png" width="100%"><br>
+<b>Dashboard</b>
+</td>
+</tr>
+
+<tr>
+<td align="center">
+<img src="assets/problems.png" width="100%"><br>
+<b>Problems</b>
+</td>
+<td align="center">
+<img src="assets/analytics.png" width="100%"><br>
+<b>Analytics</b>
+</td>
+</tr>
+<tr>
+<td align="center">
+<img src="assets/add-problem.png" width="100%"><br>
+<b>Add Problem</b>
+</td>
+<td align="center">
+<img src="assets/random-problem.png" width="100%"><br>
+<b>Random Problem</b>
+</td>
+</tr>
+</table>
+
 
 # REST API Overview
 
