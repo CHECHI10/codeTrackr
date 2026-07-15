@@ -1,112 +1,487 @@
-# CodeTrackr
+<p align="center">
+  <img src="assets/codeTrackr_Logo.png" alt="SoundSphere Logo" width="140" />
+</p>
+<h1 align="center">CodeTrackr</h1>
 
-CodeTrackr is a MERN stack DSA tracking dashboard with JWT cookie authentication, protected per-user problem tracking, dashboard statistics, streaks, revisions, search, filtering, sorting, pagination, and a modern light/dark SaaS UI.
+<p align="center">
+A modern full-stack coding interview tracker built with the MERN stack that helps developers organize coding problems, monitor progress, and stay consistent throughout interview preparation.
+</p>
 
-## Tech Stack
+<p align="center">
 
-- Frontend: React, Vite, Tailwind CSS, Axios
-- Backend: Node.js, Express, MongoDB, Mongoose
-- Auth: JWT stored in an HTTP-only cookie
-- Deployment targets: Vercel for frontend, Render for backend
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react)
+![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=node.js)
+![Express](https://img.shields.io/badge/Express-000000?style=for-the-badge&logo=express)
+![MongoDB](https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb)
+![TailwindCSS](https://img.shields.io/badge/Tailwind-06B6D4?style=for-the-badge&logo=tailwindcss)
+![JWT](https://img.shields.io/badge/JWT-000000?style=for-the-badge&logo=jsonwebtokens)
+![Render](https://img.shields.io/badge/Render-46E3B7?style=for-the-badge&logo=render)
+![Vercel](https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel)
 
-## Local Setup
+</p>
 
-1. Install backend dependencies:
+<p align="center">
+  <a href="https://code-trackr.vercel.app/">Live Demo</a>
+  •
+  <a href="https://codetrackr-sk34.onrender.com">Backend API</a>
+  •
+  <a href="https://github.com/CHECHI10/codeTrackr">Source Code</a>
+</p>
+
+
+<!-- GIF -->
+# Product Tour
+
+<p align="center">Watch a 45-second walkthrough of CodeTrackr. </p>
+
+<video src="assets/demo.mp4" controls width="100%"></video>
+
+# About CodeTrackr
+
+Preparing for coding interviews often means switching between multiple tools for tracking solved problems, taking notes, monitoring progress, and planning revisions.
+
+**CodeTrackr** brings everything together into one modern web application.
+
+It enables developers to organize coding problems, visualize progress through interactive analytics, maintain revision notes, and stay consistent using features like streak tracking, filtering, random problem selection, and performance insights.
+
+The project was designed with scalability, clean architecture, and user experience in mind while following modern full-stack development practices.
+
+> [!TIP]
+> **CodeTrackr isn't just a CRUD application.** It focuses on solving a real problem by providing developers with a centralized workspace to manage coding interview preparation, monitor progress, and stay consistent through analytics and productivity features.
+
+#  Highlights
+
+-  Secure JWT Authentication using HTTP-only Cookies
+-  Interactive Analytics Dashboard
+-  Coding Progress Tracking
+-  Daily Streak Tracking
+-  Random Problem Generator
+-  Revision Notes
+-  Search, Filter & Sorting
+-  Fully Responsive Design
+-  Dark & Light Theme
+
+
+#  Features
+
+## Authentication & Security
+
+- User Registration & Login
+- JWT Authentication
+- HTTP-only Cookie Sessions
+- Protected Routes
+- Secure Logout
+
+---
+
+## Problem Management
+
+- Add Coding Problems
+- Edit Existing Problems
+- Delete Problems
+- Bulk Delete Support
+- Difficulty Levels
+- Topic Categorization
+- Platform Tracking
+- Personal Notes
+- Revision Scheduling
+
+---
+
+##  Dashboard & Analytics
+
+- Overall Progress Dashboard
+- Difficulty Distribution
+- Platform-wise Statistics
+- Solved Problems Overview
+- Daily Streak Counter
+- Recent Activity
+- Completion Insights
+
+---
+
+##  Productivity Features
+
+- Random Problem Picker
+- Advanced Search
+- Multiple Filters
+- Sorting Options
+- Pagination
+- Responsive Dashboard
+
+---
+
+##  User Experience
+
+- Dark / Light Theme
+- Modern UI
+- Toast Notifications
+- Keyboard Shortcuts
+
+# Tech Stack
+
+| Category | Technologies |
+|-----------|--------------|
+| Frontend | React, Vite, Tailwind CSS |
+| Backend | Node.js, Express.js |
+| Database | MongoDB, Mongoose |
+| Authentication | JWT, HTTP-only Cookies |
+| Charts | Recharts |
+| State Management | React Context API |
+| API Communication | Axios |
+| Deployment | Vercel, Render |
+| Version Control | Git, GitHub |
+
+#  Project Structure
+
+```text
+CodeTrackr
+│
+├── client/
+│   ├── public/
+│   ├── src/
+│   │   ├── assets/
+│   │   ├── components/
+│   │   ├── context/
+│   │   ├── hooks/
+│   │   ├── layouts/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   ├── utils/
+│   │   └── App.jsx
+│   └── package.json
+│
+├── server/
+│   ├── config/
+│   ├── controllers/
+│   ├── middleware/
+│   ├── models/
+│   ├── routes/
+│   ├── services/
+│   ├── utils/
+│   └── server.js
+│
+└── README.md
+```
+
+#  System Architecture
+
+```text
+                        +----------------------+
+                        |      Web Browser     |
+                        +----------+-----------+
+                                   |
+                                   |
+                                   ▼
+                        +----------------------+
+                        |   React + Vite App   |
+                        +----------+-----------+
+                                   |
+                          Axios HTTP Requests
+                                   |
+                                   ▼
+                        +----------------------+
+                        |  Express REST API    |
+                        +----------+-----------+
+                                   |
+              +--------------------+--------------------+
+              |                    |                    |
+              ▼                    ▼                    ▼
+      Authentication        Controllers          Middleware
+         (JWT)              Business Logic     Validation/Auth
+              |                    |                    |
+              +--------------------+--------------------+
+                                   |
+                                   ▼
+                        +----------------------+
+                        |      MongoDB         |
+                        |   (Mongoose ODM)     |
+                        +----------------------+
+```
+
+#  Authentication Flow
+
+```text
+User Login
+     │
+     ▼
+Credentials Sent to Backend
+     │
+     ▼
+Credentials Verified
+     │
+     ▼
+JWT Token Generated
+     │
+     ▼
+HTTP-only Cookie Created
+     │
+     ▼
+Browser Stores Cookie Securely
+     │
+     ▼
+Protected Requests Include Cookie
+     │
+     ▼
+Authentication Middleware
+     │
+     ▼
+Access Granted
+```
+
+
+#  Database Design
+
+```text
+┌────────────────────────────┐
+│            User            │
+├────────────────────────────┤
+│ _id                        │
+│ name                       │
+│ email                      │
+│ password                   │
+│ streak                     │
+│ preferences                │
+└──────────────┬─────────────┘
+               │
+               │ One-to-Many
+               ▼
+┌────────────────────────────┐
+│          Problem           │
+├────────────────────────────┤
+│ _id                        │
+│ title                      │
+│ difficulty                 │
+│ platform                   │
+│ topic                      │
+│ status                     │
+│ notes                      │
+│ revisionDate               │
+│ createdBy                  │
+└────────────────────────────┘
+```
+
+# REST API Overview
+
+| Method | Endpoint | Description |
+|---------|----------|-------------|
+| POST | `/api/auth/register` | Register a new user |
+| POST | `/api/auth/login` | Login user |
+| POST | `/api/auth/logout` | Logout user |
+| GET | `/api/auth/me` | Get authenticated user |
+| GET | `/api/problems` | Fetch all problems |
+| POST | `/api/problems` | Add a new problem |
+| PUT | `/api/problems/:id` | Update a problem |
+| DELETE | `/api/problems/:id` | Delete a problem |
+| GET | `/api/dashboard` | Dashboard statistics |
+| GET | `/api/analytics` | Analytics data |
+
+# Deployment Architecture
+
+```text
+                User
+                  │
+                  ▼
+        Vercel (React Frontend)
+                  │
+          HTTPS API Requests
+                  │
+                  ▼
+       Render (Express Backend)
+                  │
+                  ▼
+         MongoDB Atlas Database
+```
+
+### Deployment Stack
+
+| Service | Platform |
+|----------|----------|
+| Frontend | Vercel |
+| Backend | Render |
+| Database | MongoDB Atlas |
+
+## Installation
+
+### Clone the repository
+
+```bash
+git clone https://github.com/CHECHI10/codeTrackr
+cd codeTrackr
+```
+
+---
+
+### Backend Setup
 
 ```bash
 cd backend
 npm install
-```
-
-2. Create `backend/.env` from `backend/.env.example`.
-
-3. Install frontend dependencies:
-
-```bash
-cd ../frontend
-npm install
-```
-
-4. Create `frontend/.env` from `frontend/.env.example`.
-
-5. Start the backend:
-
-```bash
-cd backend
 npm run dev
 ```
 
-6. Start the frontend:
+The backend server will start on the configured port (default: `3000`).
+
+---
+
+### Frontend Setup
+
+Open a new terminal.
 
 ```bash
 cd frontend
+npm install
 npm run dev
 ```
 
-## Required Environment Variables
+The frontend will start on the configured Vite development server.
 
-Backend:
+---
 
-- `NODE_ENV`: `development` or `production`
-- `PORT`: backend port, usually `3000` locally
-- `MONGO_URI`: MongoDB connection string
-- `JWT_SECRET`: long random signing secret
-- `JWT_EXPIRES_IN`: JWT lifetime, for example `7d`
-- `CLIENT_URL`: allowed frontend origin; comma-separate multiple origins
+### Running the Application
 
-Frontend:
+Start both services in separate terminals:
 
-- `VITE_API_URL`: backend API URL ending in `/api`
+| Service | Command |
+|---------|---------|
+| Backend | `cd backend && npm run dev` |
+| Frontend | `cd frontend && npm run dev` |
 
-## API Overview
+Once both services are running, open the frontend in your browser to access SoundSphere.
 
-- `POST /api/auth/register`
-- `POST /api/auth/login`
-- `POST /api/auth/logout`
-- `GET /api/auth/me`
-- `GET /api/problems`
-- `GET /api/problems/:id`
-- `POST /api/problems`
-- `PATCH /api/problems/:id`
-- `PATCH /api/problems/:id/revision`
-- `DELETE /api/problems/:id`
-- `DELETE /api/problems`
-- `GET /api/dashboard/stats`
 
-## Deployment
+#  Environment Variables
 
-Frontend on Vercel:
+### Backend (`server/.env`)
 
-- Root directory: `frontend`
-- Build command: `npm run build`
-- Output directory: `dist`
-- Add `VITE_API_URL=https://your-render-service.onrender.com/api`
+```env
+PORT=3000
 
-Backend on Render:
+MONGO_URI=<your_mongodb_connection_string>
 
-- Root directory: `backend`
-- Build command: `npm install`
-- Start command: `npm start`
-- Add all backend environment variables from `backend/.env.example`
-- Set `NODE_ENV=production`
-- Set `CLIENT_URL` to your Vercel URL
+JWT_SECRET=<your_jwt_secret>
 
-Important production note: the backend uses cross-site HTTP-only cookies in production with `sameSite: none` and `secure: true`, so the Render backend must be served over HTTPS and `CLIENT_URL` must exactly match the Vercel origin.
+CLIENT_ORIGIN=http://localhost:5173
 
-## Testing Checklist
+NODE_ENV= development
+```
 
-- Register, login, logout, and refresh persistence work.
-- Unauthenticated users see the auth screen.
-- Problems are scoped to the signed-in user.
-- Create, edit, delete, delete all, status update, and revision recording work.
-- Search, filters, sorting, and pagination update from backend data.
-- Dashboard totals, streaks, revisions, platform distribution, and recent activity refresh after mutations.
-- Light/dark theme toggles and persists.
-- Frontend lint and production build pass.
-- Backend syntax check passes.
+### Frontend (`client/.env`)
 
-## Potential Issues
+```env
+VITE_API_URL=http://localhost:3000/api
+```
 
-- Existing pre-auth problem records do not have a `user` owner and will not appear in authenticated accounts unless migrated.
-- Production cookies require HTTPS.
-- If the frontend and backend domains change, update `CLIENT_URL` and `VITE_API_URL` together.
+# Performance Optimizations
+
+- Component-based architecture for better reusability
+- Efficient state management using React Context
+- Protected routes with middleware-based authentication
+- Secure HTTP-only cookie authentication
+- Environment-specific API configuration
+- Optimized MongoDB queries using Mongoose
+- Responsive layouts for desktop, tablet, and mobile devices
+- Lazy loading where applicable
+
+# Challenges Faced
+
+Building CodeTrackr involved solving several real-world engineering challenges beyond implementing core features.
+
+### Production Authentication
+
+Configuring JWT authentication using HTTP-only cookies across different origins required careful handling of cookie attributes, CORS policies, and secure settings to ensure authentication worked consistently in both development and production environments.
+
+---
+
+### Cross-Origin Requests
+
+Since the frontend and backend are deployed on different platforms, configuring CORS correctly while maintaining security required multiple iterations of debugging and testing.
+
+---
+
+### Protected Routing
+
+Maintaining authenticated user sessions across page refreshes without exposing sensitive information required designing middleware-based authorization and persistent session validation.
+
+---
+
+### State Synchronization
+
+Keeping dashboard statistics, analytics, and problem lists synchronized after CRUD operations required careful frontend state management to avoid unnecessary API requests while ensuring data consistency.
+
+---
+
+### Deployment Debugging
+
+Deploying a full-stack MERN application introduced several production-specific issues involving environment variables, API endpoints, cookies, and hosting platform configurations that differed from local development.
+
+# What I Learned
+
+Building CodeTrackr strengthened both my frontend and backend development skills.
+
+Some of the key takeaways include:
+
+- Designing scalable REST APIs using Express.js
+- Implementing secure authentication with JWT and HTTP-only cookies
+- Structuring a production-style MERN application
+- Managing application state effectively in React
+- Designing reusable UI components
+- Debugging cross-origin authentication issues
+- Deploying full-stack applications using Vercel and Render
+- Organizing code for maintainability and scalability
+
+Building CodeTrackr strengthened both my frontend and backend development skills.
+
+Some of the key takeaways include:
+
+- Designing scalable REST APIs using Express.js
+- Implementing secure authentication with JWT and HTTP-only cookies
+- Structuring a production-style MERN application
+- Managing application state effectively in React
+- Designing reusable UI components
+- Debugging cross-origin authentication issues
+- Deploying full-stack applications using Vercel and Render
+- Organizing code for maintainability and scalability
+
+#  Future Improvements
+
+Some features planned for future releases include:
+
+- Email verification
+- Password reset functionality
+- Social authentication (Google/GitHub)
+- Problem sharing between users
+- Custom coding sheets
+- Contest tracking
+- Calendar-based revision planner
+- Achievement badges
+- Progressive Web App (PWA)
+- Mobile application
+
+# Contributing
+
+Contributions, issues, and feature requests are always welcome.
+
+If you'd like to improve CodeTrackr:
+
+1. Fork the repository
+2. Create a feature branch
+3. Commit your changes
+4. Push the branch
+5. Open a Pull Request
+
+Constructive feedback is always appreciated.
+
+## License
+
+This project is licensed under the MIT License. See the `LICENSE` file for more information.
+
+## Contact
+
+**Developer:** Rohit Choudhary
+
+GitHub: https://github.com/CHECHI10
+
+LinkedIn: https://www.linkedin.com/in/rohit-choudhary01
+
+Email: <rohitchechi10@gmail.com>
