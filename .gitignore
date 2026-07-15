@@ -14,13 +14,13 @@ node_modules
 !**/.env.example
 dist
 build
-.vscode
+
 dist-ssr
 *.local
 
 # Editor directories and files
-.vscode/*
-!.vscode/extensions.json
+.vscode/
+.postman/
 .idea
 .DS_Store
 *.suo
